@@ -1,0 +1,74 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  cursor: arrow;  
+}
+.logo-div{
+  position: absolute; 
+  top: 0;
+  left: 0; 
+  background-color: red;
+  width: 70px; 
+  height: 70px; 
+}
+
+/* Assuming this is in your App.css or a specific stylesheet */
+.nav-link {
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for background and color */
+}
+
+.nav-link:hover {
+  background-color: #007bff;  /* Change to your desired hover background color */
+  color: white;               /* Change text color on hover */
+}
+
+.header-div{
+  background-color: yellow;
+  height: 70px;
+}
+
+.header-logo-div{
+  display: flex
+}
+/* App.css */
+.nav-link {
+  color: black;
+  text-decoration: none;
+}
+
+/* App.css */
+.list-group-item .nav-link {
+  color: black;
+  text-decoration: none;
+}
+
+.list-group-item .nav-link:hover {
+  background-color: #0056b3 !important; /* Use !important if necessary */
+}
+
+.active {
+  color: orange !important;
+  font-weight: bold;
+}
+
+.app-container{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+
+.not-found {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    text-align: center;
+  }
+  
+  .notfound-image {
+    max-width: 100%; /* Ensure the image is responsive */
+    height: auto;
+  }
