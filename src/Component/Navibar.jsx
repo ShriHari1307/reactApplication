@@ -1,33 +1,38 @@
-import React, { Component } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Make sure to import Bootstrap
+import React, { Component } from "react";
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap
 
 class NaviBar extends Component {
   render() {
+    const { isLoggedIn, handleLogout } = this.props;
+
     return (
-      <div className="d-flex align-items-center" style={{ height: '70px' }}>
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{
-            width: '100px',
-            height: '70px',
-            backgroundColor: '#007bff', 
-            color: 'white',
-            fontWeight: 'bold',
-          }}
-        >
-          <img src="logo.jpg" alt="logo" style={{ height:'100%', width:'100%'}} />
-        </div>
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{
-            height: '70px',
-            backgroundColor: '#28a745', 
-            width:'100%',
-            color: 'white',
-            fontWeight: 'bold',
-          }}
-        >
-          Header
+      <div>
+        {/* Combined header section with full-width blue background */}
+        <div className="bg-primary text-white">
+          <div className="container-fluid d-flex justify-content-between align-items-center py-3">
+            {/* Logo Section */}
+            <div className="d-flex align-items-center" style={{ width: "100px" }}>
+              <img src="logo.jpg" alt="logo" className="img-fluid" />
+            </div>
+
+            {/* Header Title Section */}
+            <div className="text-center flex-grow-1">
+              <h3 className="mb-0">Header</h3>
+            </div>
+
+            {/* Logout Button Section */}
+            {isLoggedIn && (
+              <div>
+                <button
+                  className="btn btn-danger"
+                  onClick={handleLogout}
+                  style={{ fontWeight: "bold" }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

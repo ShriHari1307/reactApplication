@@ -291,7 +291,7 @@ export default class AddAgent extends Component {
       status: status,
     };
   
-    console.log("Payload to be sent:", payload);  // Log the payload for debugging
+    console.log("Payload to be sent:", payload);  
   
     fetch("http://localhost:8080/agents/create", {
       method: "POST",
@@ -307,7 +307,7 @@ export default class AddAgent extends Component {
         return response.json();
       })
       .then((data) => {
-        console.log("Response data:", data);  // Log the response data for debugging
+        console.log("Response data:", data);  
         alert("Agent added Successfully");
         this.setState({
           agentId: "",
@@ -566,7 +566,6 @@ export default class AddAgent extends Component {
                               type="checkbox"
                               id={`provider-${provider.providerId}`}
                               value={provider.providerId}
-                              // Check if this provider is selected or not
                               checked={this.state.selectedProviders.includes(
                                 provider.providerId
                               )}

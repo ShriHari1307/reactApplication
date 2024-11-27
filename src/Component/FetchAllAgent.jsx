@@ -78,7 +78,7 @@ export default class FetchAllAgent extends Component {
                       {agent.firstName} - {agent.lastName}
                     </h5>
                     <p className="card-text">
-                      <strong>Provider ID:</strong> {agent.agentId}
+                      <strong>Agent ID:</strong> {agent.agentId}
                     </p>
                     <p className="card-text">
                       <strong>Contact:</strong> {agent.contact}
