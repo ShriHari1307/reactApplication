@@ -74,7 +74,7 @@ export default class AgentUpdate extends Component {
           cityId: agentData.cityId,
           stateId: agentData.stateId,
           status: agentData.status,
-          providerIds: agentData.providerIds,
+          providerIds: agentData.providerIds.join(','),
           loading: false,
           formVisible: true,
         });
@@ -342,6 +342,17 @@ export default class AgentUpdate extends Component {
                 name="status"
                 className="form-control"
                 value={status}
+                onChange={this.handleChange}
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="providerIds" className="form-label">Provider IDs:</label>
+              <input
+                type="text"
+                id="providerIds"
+                name="agentIds"
+                className="form-control"
+                value={providerIds}
                 onChange={this.handleChange}
               />
             </div>

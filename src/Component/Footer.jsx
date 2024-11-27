@@ -5,7 +5,7 @@ export default class Footer extends Component {
     return (
       <div className="d-flex align-items-center " style={{height:'70px' ,backgroundColor: 'red', 
         color: 'white',justifyContent:'center', fontWeight:'bold'}} >
-        Footer
+        <p>&copy; 2024 Insurance Agent Management System. All rights reserved.</p>
       </div>
     )
   }
