@@ -1,137 +1,317 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
-export default class FetchById extends Component {
+export default class FetchProviderByName extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-       providerId:"",
-       provider:null,
-       loading: false,
-       error: null,
-       inputError:"",
-    }
+      providerName: "",
+      providerNameError: "",
+      validationError: "",  // New state for validation error
+      matchingProviders: [],
+      selectedProvider: null,
+      providerNotFoundVisible: false,
+      enterProviderNameVisible: true,
+      loading: false,
+      error: null,
+    };
+    this.stateMapping = {
+      1: {
+        name: "Tamil Nadu",
+        cities: {
+          1: "Chennai",
+          2: "Coimbatore",
+          3: "Madurai",
+          4: "Salem",
+          5: "Trichy",
+        },
+      },
+      2: {
+        name: "West Bengal",
+        cities: {
+          6: "Kolkata",
+          7: "Durgapur",
+          8: "Siliguri",
+          9: "Asansol",
+          10: "Howrah",
+        },
+      },
+      3: {
+        name: "Karnataka",
+        cities: {
+          11: "Bangalore",
+          12: "Mysore",
+          13: "Hubli",
+          14: "Mangalore",
+          15: "Bellary",
+        },
+      },
+      4: {
+        name: "Maharashtra",
+        cities: {
+          16: "Mumbai",
+          17: "Pune",
+          18: "Nagpur",
+          19: "Nashik",
+          20: "Aurangabad",
+        },
+      },
+    };
   }
 
-  FetchProviderId = () => {
-      const { providerId } = this.state;
-      if (!providerId.trim()) {
-        this.setState({ inputError: "Provider ID cannot be empty.", error: null });
+  getStateName = (stateId) => {
+    return this.stateMapping[stateId]?.name || "Unknown State";
+  };
+
+  getCityName = (stateId, cityId) => {
+    const state = this.stateMapping[stateId];
+    if (!state) return "Unknown City";
+    return state.cities[cityId] || "Unknown City";
+  };
+
+  validateProviderName = (e) => {
+    const value = e.target.value;
+    const regex = /^[A-Za-z ]+$/;
+  
+    // Update the state for providerName
+    this.setState({
+      providerName: value,
+      providerNameError:
+        value && !regex.test(value)
+          ? "Provider name cannot contain numbers or special characters"
+          : ""
+    });
+  };
+  
+
+  fetchProvidersByName = async () => {
+    const { providerName, providerNameError } = this.state;
+    
+    // If there's an error in provider name, don't proceed with fetching data
+    if (providerNameError || !providerName.trim()) {
+      this.setState(
+        {
+          validationError: "Please fix the errors before searching.",  // Set validation error message
+          matchingProviders: [],
+        },
+        () => {
+          // After 2 seconds, clear the validation error message
+          setTimeout(() => {
+            this.setState({ validationError: "" });
+          }, 2000);
+        }
+      );
+      return;
+    }
+    
+    // Proceed with fetching the provider data if no validation error
+    this.setState({ loading: true, error: null, matchingProviders: [], validationError: "" });
+
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/provider/search`,
+        {
+          params: { name: providerName },
+        }
+      );
+
+      if (response.data.length === 0) {
+        this.setState({
+          providerNotFoundVisible: true,
+          enterProviderNameVisible: false,
+        });
+
+        setTimeout(() => {
+          this.setState({
+            providerNotFoundVisible: false,
+            enterProviderNameVisible: true,
+            loading: false,
+          });
+        }, 3000);
         return;
       }
 
-      this.setState({ loading: true, error: null, agent: null });
-    
-      const fetchProviderById = () =>
-        new Promise((resolve, reject) => {
-          fetch(`http://localhost:8080/provider/${providerId}`, {
-            method: "GET",
-            headers: {
-              "X-Custom-Header": "validHeaderValue",
-            },
-          })
-            .then((response) => {
-              if (!response.ok) {
-                if (response.status === 404) {
-                  reject(new Error(`Provider with ID "${providerId}" not found.`));
-                } else {
-                  return response
-                    .json()
-                    .then((error) =>
-                      reject(new Error(error.message || response.statusText))
-                    );
-                }
-              }
-              return response.json();
-            })
-            .then((data) => resolve(data.data))
-            .catch((error) => reject(new Error(error.message || "Fetch failed.")));
-        });
-  
-        fetchProviderById()
-        .then((providerData) => {
-          this.setState({
-            provider: providerData,
-            loading: false,
-          });
-        })
-        .catch((error) => {
-          this.setState({
-            error: error.message,
-            loading: false,
-          });
-        });
-    };
+      this.setState({
+        matchingProviders: response.data,
+        selectedProvider: null,
+        providerNotFoundVisible: false,
+        enterProviderNameVisible: false,
+        loading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching providers:", error);
+      this.setState({
+        error: "An error occurred while fetching providers.",
+        loading: false,
+      });
+    }
+  };
 
-
-  validateProvider = (e) => {
-    const value = e.target.value;
-    const regex = /^[Pp][0-9]{3,6}$/;
-    const errorMessage = !regex.test(value) ? 'Provider ID should be of the format [Pxxx] where x is a digit.': '';
+  selectProvider = (provider) => {
     this.setState({
-      providerId: value,
-      inputError: errorMessage,
+      selectedProvider: provider,
+      providerNotFoundVisible: false,
+      enterProviderNameVisible: false,
+    });
+  };
+
+  resetToSearch = () => {
+    this.setState({
+      providerName: "",
+      matchingProviders: [],
+      selectedProvider: null,
+      providerNotFoundVisible: false,
+      enterProviderNameVisible: true,
+      loading: false,
+      error: null,
+      validationError: "",  // Reset the validation error when resetting
     });
   };
 
   render() {
-    const { providerId, provider, loading, error, inputError } = this.state;
+    const {
+      providerName,
+      matchingProviders,
+      selectedProvider,
+      providerNotFoundVisible,
+      enterProviderNameVisible,
+      loading,
+      error,
+      validationError,  // Get validation error state
+    } = this.state;
 
     return (
-      <div>
-        <h1>Provider Details</h1>
-        <div className="mb-3">
-          <label htmlFor="providerId" className="form-label">Enter Provider ID:</label>
-          <input
-            type="text"
-            id="providerId"
-            className="form-control"
-            value={providerId}
-            onChange={this.validateProvider}
-            placeholder="p001"
-          />
-          {inputError && <div className="text-danger">{inputError}</div>}
-          <button className="btn btn-primary mt-2" onClick={this.FetchProviderId}>
-            Fetch Provider
-          </button>
-        </div>
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-8">
+            <div className="card shadow-sm">
+              <div className="card-header bg-primary text-white">
+                <h4 className="mb-0 text-center">Fetch Provider Details</h4>
+              </div>
+              <div className="card-body">
+                {validationError && (  // Display validation error card if exists
+                  <div className="alert alert-danger">
+                    <strong>{validationError}</strong>
+                  </div>
+                )}
 
-        {loading && <div>Loading provider...</div>}
+                {enterProviderNameVisible && (
+                  <>
+                    <div className="mb-3">
+                      <label htmlFor="providerName" className="form-label">
+                        Enter Provider Name:
+                      </label>
+                      <input
+                        type="text"
+                        id="providerName"
+                        className="form-control"
+                        value={providerName}
+                        onChange={this.validateProviderName}
+                        placeholder="e.g., ABC Insurance"
+                      />
+                      {this.state.providerNameError && (
+                        <div className="text-danger">
+                          {this.state.providerNameError}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      className="btn btn-primary w-100"
+                      onClick={this.fetchProvidersByName}
+                      disabled={loading}
+                    >
+                      {loading ? "Fetching..." : "Search Providers"}
+                    </button>
+                  </>
+                )}
 
-        {error && <div className="text-danger">Error: {error}</div>}
+                {providerNotFoundVisible && (
+                  <div className="alert alert-warning mt-4">
+                    <strong>No providers found with the given name.</strong>
+                  </div>
+                )}
 
-        {provider && (
-          <div className="table-responsive" style={{ maxHeight: '550px' }}>
-            <table className="table table-striped table-bordered">
-              <thead className="thead-dark">
-                <tr>
-                  <th>Provider ID</th>
-                  <th>Name</th>
-                  <th>Contact Number</th>
-                  <th>Email</th>
-                  <th>Type</th>
-                  <th>Street</th>
-                  <th>City ID</th>
-                  <th>State ID</th>
-                  <th>Agent IDs</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr key={provider.providerId}>
-                  <td>{provider.providerId}</td>
-                  <td>{provider.providerName}</td>
-                  <td>{provider.contactNumber}</td>
-                  <td>{provider.email}</td>
-                  <td>{provider.providerType}</td>
-                  <td>{provider.street}</td>
-                  <td>{provider.cityId}</td>
-                  <td>{provider.stateId}</td>
-                  <td>{provider.agentIds.length > 0 ? provider.agentIds.join(", ") : "No agents"}</td>
-                </tr>
-              </tbody>
-            </table>
+                {matchingProviders.length > 0 && (
+                  <div className="mt-4">
+                    <h5>Matching Providers:</h5>
+                    <ul className="list-group">
+                      {matchingProviders.map((provider) => (
+                        <li
+                          key={provider.providerName}
+                          className="list-group-item d-flex justify-content-between align-items-center"
+                        >
+                          <span>{provider.providerName}</span>
+                          <button
+                            className="btn btn-info"
+                            onClick={() => this.selectProvider(provider)}
+                          >
+                            View Details
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {(matchingProviders.length > 0 || selectedProvider) && (
+                  <button
+                    className="btn btn-secondary mt-3"
+                    onClick={this.resetToSearch}
+                  >
+                    Back to Search
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {error && (
+              <div className="alert alert-danger mt-4">
+                <strong>Error:</strong> {error}
+              </div>
+            )}
+
+            {selectedProvider && (
+              <div className="card mt-4 shadow-sm">
+                <div className="card-header bg-success text-white text-center">
+                  <h5>{selectedProvider.providerName}</h5>
+                </div>
+                <div className="card-body">
+                  <ul className="list-group">
+                    <li className="list-group-item">
+                      <strong>Provider Name:</strong>{" "}
+                      {selectedProvider.providerName}
+                    </li>
+                    <li className="list-group-item">
+                      <strong>Contact:</strong> {selectedProvider.contactNumber}
+                    </li>
+                    <li className="list-group-item">
+                      <strong>Email:</strong> {selectedProvider.email}
+                    </li>
+                    <li className="list-group-item">
+                      <strong>Provider Type:</strong>{" "}
+                      {selectedProvider.providerType}
+                    </li>
+                    <li className="list-group-item">
+                      <strong>Street:</strong> {selectedProvider.street}
+                    </li>
+                    <li className="list-group-item">
+                      <strong>City:</strong>{" "}
+                      {this.getCityName(
+                        selectedProvider.stateId,
+                        selectedProvider.cityId
+                      )}
+                    </li>
+                    <li className="list-group-item">
+                      <strong>State:</strong>{" "}
+                      {this.getStateName(selectedProvider.stateId)}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     );
   }

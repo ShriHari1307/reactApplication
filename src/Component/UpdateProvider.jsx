@@ -1,302 +1,327 @@
 import React, { Component } from 'react';
-import "bootstrap/dist/css/bootstrap.min.css";
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default class ProviderUpdate extends Component {
+class UpdateProvider extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      providerId: "",
-      providerName: "",
-      contactNumber: "",
-      email: "",
-      providerType: "",
-      street: "",
-      cityId: "",
-      stateId: "",
-      loading: false,
-      error: null,
-      inputError: "",
-      formVisible: false,
-      updateSuccess: "", 
+      providerNameSearch: '',
+      providerName: '',
+      contactNumber: '',
+      email: '',
+      matchingProviders: [],
+      selectedProvider: null,
+      providerNameError: '',
+      contactNumberError: '',
+      emailError: '',
+      validationError: '',
+      validationCard: false,
+      successVisible: false,
+      updateSuccess: '',
+      errorCardVisible: false,
+      errorMessage: '',
+      showForm: false,
+      noProviderFound: false,
+      searchErrorCard: false,
     };
   }
 
-  FetchProviderId = () => {
-    const { providerId } = this.state;
-    if (!providerId.trim()) {
-      this.setState({ inputError: "Provider ID cannot be empty.", error: null });
+  handleInputChange = (e) => {
+    const { name, value } = e.target;
+    this.setState({ [name]: value });
+  };
+
+  validateProviderName = (e) => {
+    const value = e.target.value;
+    let providerNameError = '';
+    if (!value) {
+      providerNameError = 'Provider Name is required';
+    }
+    this.setState({ providerNameError });
+  };
+
+  validateContactNumber = (e) => {
+    const value = e.target.value;
+    let contactNumberError = '';
+    const regex = /^[0-9]{10}$/;
+    if (!value) {
+      contactNumberError = 'Contact Number is required';
+    } else if (!regex.test(value)) {
+      contactNumberError = 'Invalid Contact Number';
+    }
+    this.setState({ contactNumberError });
+  };
+
+  validateEmail = (e) => {
+    const value = e.target.value;
+    let emailError = '';
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!value) {
+      emailError = 'Email is required';
+    } else if (!regex.test(value)) {
+      emailError = 'Invalid Email';
+    }
+    this.setState({ emailError });
+  };
+
+  handleSearch = async () => {
+    const { providerNameSearch } = this.state;
+
+    if (!providerNameSearch.trim()) {
+      this.setState({ searchErrorCard: true });
       return;
     }
 
-    this.setState({ loading: true, error: null });
+    this.setState({ searchErrorCard: false });
 
-    const fetchProviderById = () =>
-      new Promise((resolve, reject) => {
-        fetch(`http://localhost:8080/provider/${providerId}`, {
-          method: "GET",
-          headers: {
-            "X-Custom-Header": "validHeaderValue",
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              if (response.status === 404) {
-                reject(new Error(`Provider with ID "${providerId}" not found.`));
-              } else {
-                return response
-                  .json()
-                  .then((error) =>
-                    reject(new Error(error.message || response.statusText))
-                  );
-              }
-            }
-            return response.json();
-          })
-          .then((data) => resolve(data.data))
-          .catch((error) => reject(new Error(error.message || "Fetch failed.")));
+    try {
+      const response = await axios.get('http://localhost:8080/provider/search', {
+        params: { name: providerNameSearch },
       });
 
-    fetchProviderById()
-      .then((providerData) => {
+      if (response.data.length === 0) {
         this.setState({
-          providerId: providerData.providerId,
-          providerName: providerData.providerName,
-          contactNumber: providerData.contactNumber,
-          email: providerData.email,
-          providerType: providerData.providerType,
-          street: providerData.street,
-          cityId: providerData.cityId,
-          stateId: providerData.stateId,
-          loading: false,
-          formVisible: true,
+          matchingProviders: [],
+          noProviderFound: true,
+          showForm: false,
         });
-      })
-      .catch((error) => {
+      } else {
         this.setState({
-          error: error.message,
-          loading: false,
+          matchingProviders: response.data,
+          noProviderFound: false,
+          showForm: false,
         });
-      });
+      }
+    } catch (error) {
+      console.error('Error fetching providers:', error);
+    }
   };
 
-  
-  handleChange = (e) => {
-    const { name, value } = e.target;
+  handleUpdate = (provider) => {
     this.setState({
-      [name]: value,
+      selectedProvider: provider,
+      providerName: provider.providerName,
+      contactNumber: provider.contactNumber,
+      email: provider.email,
+      showForm: true,
     });
   };
 
-  updateProvider = () => {
-    const {
-      providerId,
-      providerName,
-      contactNumber,
-      email,
-      providerType,
-      street,
-      cityId,
-      stateId,
-    } = this.state;
+  updateProvider = async () => {
+    const { providerName, contactNumber, email, selectedProvider } = this.state;
 
-    const updatedProvider = {
-      providerId,
-      providerName,
-      contactNumber,
-      email,
-      providerType,
-      street,
-      cityId,
-      stateId,
-    };
+    this.validateProviderName({ target: { value: providerName } });
+    this.validateContactNumber({ target: { value: contactNumber } });
+    this.validateEmail({ target: { value: email } });
 
-    this.setState({ loading: true, updateSuccess: "", error: null });
+    const hasValidationErrors = [
+      this.state.providerNameError,
+      this.state.contactNumberError,
+      this.state.emailError,
+    ].some((error) => error !== '');
 
-    fetch(`http://localhost:8080/provider/update/${providerId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedProvider),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          return response.json().then((errorData) => {
-            throw new Error(errorData.message || "Update failed");
-          });
-        }
-      })
-      .then((data) => {
-        this.setState({
-          providerId: "",
-          providerName: "",
-          contactNumber: "",
-          email: "",
-          providerType: "",
-          street: "",
-          cityId: "",
-          stateId: "",
-          loading: false,
-          updateSuccess: "Provider updated successfully!", 
-          formVisible: false, 
-        });
-      })
-      .catch((error) => {
-        this.setState({
-          loading: false,
-          error: error.message || "Update failed.",
-        });
+    if (hasValidationErrors) {
+      this.setState({
+        validationError: 'Please fix all the validation errors before submitting.',
+        validationCard: true,
       });
-};
 
-  
+      setTimeout(() => {
+        this.setState({ validationCard: false });
+      }, 3000);
+
+      return;
+    }
+
+    try {
+      const updatedDetails = {
+        ...selectedProvider,
+        providerName,
+        contactNumber,
+        email,
+      };
+
+      await axios.put(
+        `http://localhost:8080/provider/update/${selectedProvider.providerId}`,
+        updatedDetails
+      );
+
+      this.setState({
+        successVisible: true,
+        updateSuccess: 'Provider updated successfully!',
+        showForm: false,
+      });
+
+      setTimeout(() => {
+        this.setState({
+          providerNameSearch: '',
+          providerName: '',
+          contactNumber: '',
+          email: '',
+          matchingProviders: [],
+          selectedProvider: null,
+          successVisible: false,
+        });
+      }, 3000);
+    } catch (error) {
+      console.error('Error updating provider:', error);
+
+      this.setState({
+        errorCardVisible: true,
+        errorMessage: 'An error occurred while updating provider details.',
+        showForm: false,
+      });
+
+      setTimeout(() => {
+        this.setState({
+          errorCardVisible: false,
+          errorMessage: '',
+        });
+      }, 3000);
+    }
+  };
 
   render() {
     const {
-      providerId,
+      providerNameSearch,
       providerName,
       contactNumber,
       email,
-      providerType,
-      street,
-      cityId,
-      stateId,
-      loading,
-      error,
-      inputError,
-      formVisible,
+      matchingProviders,
+      providerNameError,
+      contactNumberError,
+      emailError,
+      validationError,
+      validationCard,
+      successVisible,
       updateSuccess,
+      errorCardVisible,
+      errorMessage,
+      showForm,
+      noProviderFound,
+      searchErrorCard,
     } = this.state;
 
     return (
-      <div>
-        <h1>Update Provider Details</h1>
-        <div className="mb-3">
-          <label htmlFor="providerId" className="form-label">Enter Provider ID:</label>
+      <div className="container mt-5">
+        <h2>Update Provider</h2>
+        <div className="form-group">
+          <label htmlFor="providerNameSearch">Search Provider by Name:</label>
           <input
             type="text"
-            id="providerId"
-            name="providerId"
             className="form-control"
-            value={providerId}
-            onChange={this.handleChange}
-            placeholder="P001"
+            id="providerNameSearch"
+            name="providerNameSearch"
+            value={providerNameSearch}
+            onChange={this.handleInputChange}
+            placeholder="Enter provider name"
           />
-          {inputError && <div className="text-danger">{inputError}</div>}
-          <button className="btn btn-primary mt-2" onClick={this.FetchProviderId}>
-            Fetch Provider
-          </button>
         </div>
-
-        {loading && <div>Loading provider...</div>}
-
-        {error && <div className="text-danger">Error: {error}</div>}
-
-        {formVisible && (
-          <div
-            className="mb-3"
-            style={{
-              maxHeight: '400px',
-              overflowY: 'auto',
-              border: '1px solid #ddd',
-              padding: '15px',
-              borderRadius: '5px',
-            }}
-          >
-            <div className="mb-3">
-              <label htmlFor="providerName" className="form-label">Provider Name:</label>
-              <input
-                type="text"
-                id="providerName"
-                name="providerName"
-                className="form-control"
-                value={providerName}
-                onChange={this.handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="contactNumber" className="form-label">Contact Number:</label>
-              <input
-                type="text"
-                id="contactNumber"
-                name="contactNumber"
-                className="form-control"
-                value={contactNumber}
-                onChange={this.handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email:</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                className="form-control"
-                value={email}
-                onChange={this.handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="providerType" className="form-label">Provider Type:</label>
-              <input
-                type="text"
-                id="providerType"
-                name="providerType"
-                className="form-control"
-                value={providerType}
-                onChange={this.handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="street" className="form-label">Street:</label>
-              <input
-                type="text"
-                id="street"
-                name="street"
-                className="form-control"
-                value={street}
-                onChange={this.handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="cityId" className="form-label">City ID:</label>
-              <input
-                type="text"
-                id="cityId"
-                name="cityId"
-                className="form-control"
-                value={cityId}
-                onChange={this.handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="stateId" className="form-label">State ID:</label>
-              <input
-                type="text"
-                id="stateId"
-                name="stateId"
-                className="form-control"
-                value={stateId}
-                onChange={this.handleChange}
-              />
-            </div>
-
-            <button className="btn btn-success mt-2" onClick={this.updateProvider}>
-              Update Provider
-            </button>
+        <button onClick={this.handleSearch} className="btn btn-primary">
+          Search
+        </button>
+        {searchErrorCard && (
+          <div className="alert alert-danger mt-2">
+            <strong>Error:</strong> Search field cannot be empty.
+          </div>
+        )}
+        {noProviderFound && (
+          <div className="alert alert-warning mt-2">
+            <strong>No providers found matching the name.</strong>
           </div>
         )}
 
-        {updateSuccess && <div className="text-success">{updateSuccess}</div>}
+        {matchingProviders.length > 0 && (
+          <div className="card shadow p-4 mb-4 mt-4">
+            <h3 className="text-center mb-4">Matching Providers</h3>
+            <ul className="list-group">
+              {matchingProviders.map((provider) => (
+                <li
+                  className="list-group-item d-flex justify-content-between align-items-center"
+                  key={provider.providerId}
+                >
+                  {provider.providerName} 
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => this.handleUpdate(provider)}
+                  >
+                    Update
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {showForm && (
+          <div className="mt-4">
+            <h4>Edit Provider Details</h4>
+            <div className="form-group">
+              <label htmlFor="providerName">Provider Name:</label>
+              <input
+                type="text"
+                className="form-control"
+                id="providerName"
+                name="providerName"
+                value={providerName}
+                onChange={this.handleInputChange}
+                onBlur={this.validateProviderName}
+              />
+              {providerNameError && (
+                <small className="text-danger">{providerNameError}</small>
+              )}
+            </div>
+            <div className="form-group">
+              <label htmlFor="contactNumber">Contact Number:</label>
+              <input
+                type="text"
+                className="form-control"
+                id="contactNumber"
+                name="contactNumber"
+                value={contactNumber}
+                onChange={this.handleInputChange}
+                onBlur={this.validateContactNumber}
+              />
+              {contactNumberError && (
+                <small className="text-danger">{contactNumberError}</small>
+              )}
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">Email:</label>
+              <input
+                type="email"
+                className="form-control"
+                id="email"
+                name="email"
+                value={email}
+                onChange={this.handleInputChange}
+                onBlur={this.validateEmail}
+              />
+              {emailError && (
+                <small className="text-danger">{emailError}</small>
+              )}
+            </div>
+            <button onClick={this.updateProvider} className="btn btn-success">
+              Update
+            </button>
+
+            {validationCard && (
+              <div className="alert alert-danger mt-3">{validationError}</div>
+            )}
+
+            {successVisible && (
+              <div className="alert alert-success mt-3">{updateSuccess}</div>
+            )}
+
+            {errorCardVisible && (
+              <div className="alert alert-danger mt-3">{errorMessage}</div>
+            )}
+          </div>
+        )}
       </div>
     );
   }
 }
+
+export default UpdateProvider;

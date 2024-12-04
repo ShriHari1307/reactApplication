@@ -11,15 +11,22 @@ export default class LoginPage extends Component {
       errorMessage: "",
       successMessage: "",
       isSignUp: false,
+      showPassword: false, 
+      
     };
   }
 
   handleInputChange = (event) => {
-    console.log("Inside on change")
     const { id, value } = event.target;
     this.setState({
       [id]: value,
     });
+  };
+
+  togglePasswordVisibility = () => {
+    this.setState((prevState) => ({
+      showPassword: !prevState.showPassword,
+    }));
   };
 
   toggleForm = () => {
@@ -83,9 +90,19 @@ export default class LoginPage extends Component {
     }
   };
 
+  handleBack = () => {
+    window.location.href = "/";
+  };
+
   render() {
-    const { username, password, errorMessage, successMessage, isSignUp } =
-      this.state;
+    const {
+      username,
+      password,
+      errorMessage,
+      successMessage,
+      isSignUp,
+      showPassword,
+    } = this.state;
 
     return (
       <div
@@ -132,9 +149,9 @@ export default class LoginPage extends Component {
               <label htmlFor="username">Username</label>
             </div>
 
-            <div className="form-floating mb-3">
+            <div className="form-floating mb-3 position-relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 className="form-control"
                 id="password"
                 placeholder="Enter your password"
@@ -143,6 +160,18 @@ export default class LoginPage extends Component {
                 style={{ borderRadius: "5px" }}
               />
               <label htmlFor="password">Password</label>
+              <span
+                onClick={this.togglePasswordVisibility}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  right: "10px",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                }}
+              >
+                {showPassword ? "👁️" : "🙈"}
+              </span>
             </div>
 
             <button
@@ -193,6 +222,19 @@ export default class LoginPage extends Component {
               {isSignUp
                 ? "Already have an account? Sign In"
                 : "Don't have an account? Sign Up"}
+            </button>
+          </div>
+
+          <div className="text-center mt-3">
+            <button
+              className="btn btn-secondary"
+              onClick={this.handleBack}
+              style={{
+                fontSize: "0.9rem",
+                borderRadius: "5px",
+              }}
+            >
+              Back
             </button>
           </div>
         </div>

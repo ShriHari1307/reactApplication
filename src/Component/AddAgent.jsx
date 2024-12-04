@@ -22,6 +22,8 @@ export default class AddAgent extends Component {
       status: "",
       error: null,
       loading: true,
+      showSuccessCard: false,
+      showErrorCard: false,
       agentIdError: "",
       agentNameError: "",
       contactNumberError: "",
@@ -31,6 +33,8 @@ export default class AddAgent extends Component {
       stateIdError: "",
       licenseNumberError: "",
       dateOfJoiningError: "",
+      validationCard: false,
+      validationError: "",
       AgentStatusError: "",
     };
   }
@@ -142,7 +146,7 @@ export default class AddAgent extends Component {
       agentId: value,
       agentIdError:
         value && !regex.test(value)
-          ? "Agent id should be of the format [Axxx]"
+          ? "Agent id should be of the format [Axxx]  where x is a digit"
           : "",
     });
   };
@@ -186,11 +190,24 @@ export default class AddAgent extends Component {
 
   validateContactNumber = (e) => {
     const value = e.target.value;
-    const regex = /^[0-9]{10}$/;
+    const startsWithValidDigit = /^[986]/.test(value);
+    const regex = /^[986][0-9]{9}$/;
+    const containsLetter = /[a-zA-Z]/.test(value);
+    let errorMessage = "";
+
+    if (value && containsLetter) {
+      errorMessage = "Phone number cannot contain letters";
+    } else if (value && value.length > 10) {
+      errorMessage = "Phone number cannot exceed 10 digits";
+    } else if (value && !startsWithValidDigit) {
+      errorMessage = "Mobile number must start with 9, 8, or 6";
+    } else if (value && !regex.test(value)) {
+      errorMessage = "Contact Number must be 10 digits";
+    }
+
     this.setState({
       contact: value,
-      contactNumberError:
-        value && !regex.test(value) ? "Contact Number must be 10 digits" : "",
+      contactNumberError: errorMessage,
     });
   };
 
@@ -234,7 +251,7 @@ export default class AddAgent extends Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-  
+
     const {
       agentId,
       firstName,
@@ -257,9 +274,9 @@ export default class AddAgent extends Component {
       licenseNumberError,
       dateOfJoiningError,
       AgentStatusError,
-      selectedProviders
+      selectedProviders,
     } = this.state;
-  
+
     if (
       agentIdError ||
       agentNameError ||
@@ -272,10 +289,18 @@ export default class AddAgent extends Component {
       dateOfJoiningError ||
       AgentStatusError
     ) {
-      alert("Please fix the validation errors");
+      this.setState({
+        validationCard: true,
+        validationError:
+          "Please fix all the validation errors before submitting.",
+      });
+      setTimeout(() => {
+        this.setState({ validationCard: false });
+      }, 3000);
+
       return;
     }
-  
+
     const payload = {
       agentId,
       firstName,
@@ -290,9 +315,9 @@ export default class AddAgent extends Component {
       email,
       status: status,
     };
-  
-    console.log("Payload to be sent:", payload);  
-  
+
+    console.log("Payload to be sent:", payload);
+
     fetch("http://localhost:8080/agents/create", {
       method: "POST",
       headers: {
@@ -302,14 +327,16 @@ export default class AddAgent extends Component {
     })
       .then((response) => {
         if (!response.ok) {
-          return Promise.reject("Failed to add agent. Please Try again");
+          return response.json().then((errorData) => {
+            throw new Error(errorData.response || "Failed to add provider");
+          });
         }
         return response.json();
       })
       .then((data) => {
-        console.log("Response data:", data);  
-        alert("Agent added Successfully");
+        console.log("Response data:", data);
         this.setState({
+          showSuccessCard: true,
           agentId: "",
           firstName: "",
           lastName: "",
@@ -324,17 +351,88 @@ export default class AddAgent extends Component {
           status: "",
           selectedProviders: [],
         });
+        setTimeout(() => {
+          this.setState({ showSuccessCard: false });
+        }, 3000);
       })
       .catch((error) => {
-        console.error("Error occurred:", error);  
-        alert(`Error: ${error}`);
+        console.error("Error occurred:", error);
+        this.setState({
+          showErrorCard: true,
+          errorMessage: error.message || "An unexpected error occurred",
+        });
+        setTimeout(() => {
+          this.setState({ showErrorCard: false });
+        }, 3000);
       });
   };
-  
+
   render() {
     const { providers, selectedProviders } = this.state;
     return (
       <div className="containter mt-5">
+        {this.state.validationCard && (
+          <div
+            style={{
+              position: "fixed",
+              top: "10%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              backgroundColor: "#dc3545",
+              color: "white",
+              padding: "10px 20px",
+              borderRadius: "5px",
+              fontSize: "1rem",
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+              zIndex: 1000,
+              textAlign: "center",
+            }}
+          >
+            <span>{this.state.validationError}</span>
+          </div>
+        )}
+
+        {this.state.showErrorCard && (
+          <div
+            style={{
+              position: "fixed",
+              top: "10%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              backgroundColor: "#dc3545",
+              color: "white",
+              padding: "10px 20px",
+              borderRadius: "5px",
+              fontSize: "1rem",
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+              zIndex: 1000,
+              textAlign: "center",
+            }}
+          >
+            <span>{this.state.errorMessage}</span>
+          </div>
+        )}
+
+        {this.state.showSuccessCard && (
+          <div
+            style={{
+              position: "fixed",
+              top: "10%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              backgroundColor: "#28a745",
+              color: "white",
+              padding: "10px 20px",
+              borderRadius: "5px",
+              fontSize: "1rem",
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+              zIndex: 1000,
+              textAlign: "center",
+            }}
+          >
+            <span>Agent added successfully!</span>
+          </div>
+        )}
         <h2 className="text-center mb-4">Add Agent</h2>
         <div
           className="scrollable-form"
@@ -344,23 +442,6 @@ export default class AddAgent extends Component {
             onSubmit={this.handleSubmit}
             className="p-4 bg-light shadow-sm rounded"
           >
-            {/* agentid */}
-            <div className="mb-3">
-              <label className="form-label">Agent Id:</label>
-              <input
-                type="text"
-                name="agentId"
-                value={this.state.agentId}
-                onChange={this.validateAgentId}
-                className="form-control"
-                placeholder="Enter the Agent Id (e.g A123)"
-                required
-              />
-              {this.state.agentIdError && (
-                <div className="text-danger">{this.state.agentIdError}</div>
-              )}
-            </div>
-
             {/* First Name */}
             <div className="mb-3">
               <label className="form-label">First Name:</label>
