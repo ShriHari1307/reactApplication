@@ -61,20 +61,27 @@ export default class FetchAgentByName extends Component {
   }
 
   fetchAgentsByName = async () => {
-    const { agentName } = this.state;
-    if (!agentName.trim()) {
+    const { agentFirstName,agentNameError } = this.state;
+    if (agentNameError || !agentFirstName.trim()) {
       this.setState({
-        error: "Agent name cannot be empty.",
+        validationError: "Fix all validation before searching.",
         matchingAgents: [],
-      });
+      },
+      () => {
+        // After 2 seconds, clear the validation error message
+        setTimeout(() => {
+          this.setState({ validationError: "" });
+        }, 2000);
+      }
+    );
       return;
     }
 
-    this.setState({ loading: true, error: null, matchingAgents: [] });
+    this.setState({ loading: true, error: null, matchingAgents: [], validationError:"" });
 
     try {
       const response = await axios.get(`http://localhost:8080/agents/search`, {
-        params: { firstName: agentName },
+        params: { firstName: agentFirstName },
       });
 
       if (response.data.length === 0) {
@@ -108,7 +115,7 @@ export default class FetchAgentByName extends Component {
       });
     }
   };
-  validateProviderName = (e) => {
+  validateAgentName = (e) => {
     const value = e.target.value;
     const regex = /^[A-Za-z ]+$/;
 
@@ -159,6 +166,7 @@ export default class FetchAgentByName extends Component {
       agentNotFoundVisible: false,
       enterAgentNameVisible: true,
       error: null,
+      validationError:"",
     });
   };
 
@@ -171,6 +179,7 @@ export default class FetchAgentByName extends Component {
       enterAgentNameVisible,
       loading,
       error,
+      validationError,
     } = this.state;
 
     return (
@@ -182,6 +191,11 @@ export default class FetchAgentByName extends Component {
                 <h4 className="mb-0 text-center">Fetch Agent Details</h4>
               </div>
               <div className="card-body">
+              {validationError && (  // Display validation error card if exists
+                  <div className="alert alert-danger">
+                    <strong>{validationError}</strong>
+                  </div>
+                )}
                 {enterAgentNameVisible && (
                   <>
                     <div className="mb-3">
@@ -193,7 +207,7 @@ export default class FetchAgentByName extends Component {
                         id="agentName"
                         className="form-control"
                         value={agentName}
-                        onChange={this.validateProviderName}
+                        onChange={this.validateAgentName}
                         placeholder="e.g., John Doe"
                       />
                       {this.state.agentNameError && (

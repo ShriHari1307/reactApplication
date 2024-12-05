@@ -37,6 +37,7 @@ export default class UpdateAgent extends Component {
       dateOfJoiningError: "",
       AgentStatusError: "",
       cities: [],
+      validationError:"",
     };
   }
 

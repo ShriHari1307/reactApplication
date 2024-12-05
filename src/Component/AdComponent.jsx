@@ -4,6 +4,8 @@ class AdComponent extends Component {
   constructor(props) {
     super(props);
 
+
+    // array of ads
     this.ads = [
       {
         title: "Get the Best Health Insurance Now!",
@@ -37,6 +39,7 @@ class AdComponent extends Component {
       },
     ];
 
+    // array of messages
     this.messages = [
       "Protecting what matters most.",
       "Insurance made simple and affordable.",
@@ -52,6 +55,7 @@ class AdComponent extends Component {
     };
   }
 
+  // change after 5 sec
   componentDidMount() {
     this.selectRandomAd();
     this.typeMessage();
@@ -69,6 +73,7 @@ class AdComponent extends Component {
     }
   }
 
+  //select random ad
   selectRandomAd() {
     const randomAdIndex = Math.floor(Math.random() * this.ads.length);
     this.setState({

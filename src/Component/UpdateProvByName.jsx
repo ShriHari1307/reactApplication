@@ -6,15 +6,15 @@ export default class UpdateProvByName extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      agentName: "",
+      providerName: "",
       providerId: "",
       contactNumber: "",
       email: "",
       street: "",
       status: "",
       errorStatus: false,
-      matchingAgents: [],
-      selectedAgent: null,
+      matchingProviders: [],
+      selectedProvider: null,
       editableDetails: null,
       successVisible: false,
       showForm: true,
@@ -22,8 +22,7 @@ export default class UpdateProvByName extends Component {
       stateId: "",
       cityId: "",
       cities: [],
-      agentFirstNameError: "",
-      agentLastNameError: "",
+      providerNameError: "",
       contactNumberError: "",
       providerIds: [],
       providers: [],
@@ -37,8 +36,7 @@ export default class UpdateProvByName extends Component {
       streetError: "",
       cityIdError: "",
       stateIdError: "",
-      agentIdsError: "",
-      agentNotFoundVisible: false,
+      providerNotFoundVisible: false,
       enterProviderNameVisible: false,
     };
   }
@@ -94,7 +92,7 @@ export default class UpdateProvByName extends Component {
           dateOfJoiningError: "",
         },
         () => {
-          if (this.state.selectedAgent) {
+          if (this.state.selectedProvider) {
             this.setState((prevState) => ({
               editableDetails: {
                 ...prevState.editableDetails,
@@ -122,7 +120,7 @@ export default class UpdateProvByName extends Component {
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -159,14 +157,14 @@ export default class UpdateProvByName extends Component {
     this.setState(
       {
         providerName: value,
-        agentFirstNameError:
+        providerNameError:
           value && !regex.test(value)
             ? "Provider name cannot contain numbers or special characters"
             : "",
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -205,7 +203,7 @@ export default class UpdateProvByName extends Component {
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -242,7 +240,7 @@ export default class UpdateProvByName extends Component {
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -263,7 +261,7 @@ export default class UpdateProvByName extends Component {
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -284,7 +282,7 @@ export default class UpdateProvByName extends Component {
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -296,6 +294,18 @@ export default class UpdateProvByName extends Component {
     );
   };
 
+  validateProviderName = (e) => {
+    const value = e.target.value;
+    const regex = /^[A-Za-z ]+$/;
+    this.setState({
+      providerName: value,
+      providerNameError:
+        value && !regex.test(value)
+          ? "Provider name cannot contain numbers or special characters"
+          : ""
+    });
+  };
+
   validateStateId = (e) => {
     const value = e.target.value;
     this.setState(
@@ -305,7 +315,7 @@ export default class UpdateProvByName extends Component {
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -317,30 +327,7 @@ export default class UpdateProvByName extends Component {
     );
   };
 
-  validateAgentIds = (e) => {
-    const value = e.target.value;
-    const agentIdsArray = value.split(",").map((id) => id.trim());
-    this.setState(
-      {
-        agentIds: agentIdsArray,
-        agentIdsError:
-          !value || agentIdsArray.length === 0
-            ? "Agent IDs cannot be empty"
-            : "",
-        errorStatus: true,
-      },
-      () => {
-        if (this.state.selectedAgent) {
-          this.setState((prevState) => ({
-            editableDetails: {
-              ...prevState.editableDetails,
-              agentIds: agentIdsArray,
-            },
-          }));
-        }
-      }
-    );
-  };
+
   handleStateChange = (e) => {
     const stateId = e.target.value;
     this.setState(
@@ -353,7 +340,7 @@ export default class UpdateProvByName extends Component {
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -375,7 +362,7 @@ export default class UpdateProvByName extends Component {
         errorStatus: true,
       },
       () => {
-        if (this.state.selectedAgent) {
+        if (this.state.selectedProvider) {
           this.setState((prevState) => ({
             editableDetails: {
               ...prevState.editableDetails,
@@ -386,6 +373,8 @@ export default class UpdateProvByName extends Component {
       }
     );
   };
+
+  
 
   validateAgentStatus = (e) => {
     const value = e.target.value;
@@ -407,13 +396,13 @@ export default class UpdateProvByName extends Component {
   };
 
   handleInputChange = (e) => {
-    this.setState({ agentName: e.target.value });
+    this.setState({ providerName: e.target.value });
   };
   validateInput = (e) => {
     const value = e.target.value;
     const regex = /^[A-Za-z ]+$/;
     this.setState({
-      agentName: value,
+      providerName: value,
       inputError:
         value && !regex.test(value)
           ? "Input cannot contain numbers or special characters"
@@ -422,15 +411,30 @@ export default class UpdateProvByName extends Component {
   };
 
   fetchAgentsByName = async () => {
-    const { agentName } = this.state;
+    const { providerName,inputError } = this.state;
+
+    if (inputError) {
+      this.setState({
+        enterProviderNameVisible: false, // Hide "Please enter provider name"
+        providerNotFoundVisible: false,
+        matchingProviders: [],
+        validationError: "Please fix the error before searching", // Show providerNameError message
+      },
+      () => {
+        setTimeout(() => {
+          this.setState({ validationError: "" });
+        }, 2000);
+      });
+      return;
+    }
 
     this.setState({
-      matchingAgents: [],
+      matchingProviders: [],
     });
 
-    if (!agentName.trim()) {
+    if (!providerName.trim()) {
       this.setState({
-        agentNotFoundVisible: false,
+        providerNotFoundVisible: false,
         enterProviderNameVisible: true,
       });
       return;
@@ -438,21 +442,21 @@ export default class UpdateProvByName extends Component {
 
     try {
       const response = await axios.get(`http://localhost:8080/provider/search`, {
-        params: { name: agentName },
+        params: { name: providerName },
       });
 
       if (response.data.length === 0) {
         this.setState({
-          agentNotFoundVisible: true,
+          providerNotFoundVisible: true,
           enterProviderNameVisible: false,
         });
         return;
       }
 
       this.setState({
-        matchingAgents: response.data,
-        selectedAgent: null,
-        agentNotFoundVisible: false,
+        matchingProviders: response.data,
+        selectedProvider: null,
+        providerNotFoundVisible: false,
         enterProviderNameVisible: false,
       });
     } catch (error) {
@@ -460,14 +464,14 @@ export default class UpdateProvByName extends Component {
     }
   };
 
-  selectAgentForUpdate = (agents) => {
+  selectProviderForUpdate = (provider) => {
     this.setState({
-      selectedAgent: agents,
-      selectedProviders: agents.providerIds,
-      editableDetails: { ...agents },
-      stateId: agents.stateId,
-      cityId: agents.cityId,
-      cities: this.cityMapping[agents.stateId] || [],
+      selectedProvider: provider,
+      selectedProviders: provider.providerIds,
+      editableDetails: { ...provider },
+      stateId: provider.stateId,
+      cityId: provider.cityId,
+      cities: this.cityMapping[provider.stateId] || [],
     });
   };
 
@@ -501,7 +505,7 @@ export default class UpdateProvByName extends Component {
     });
 
     const {
-      agentFirstNameError,
+      providerNameError,
       contactNumberError,
       emailError,
       streetError,
@@ -510,7 +514,7 @@ export default class UpdateProvByName extends Component {
     } = this.state;
 
     if (
-      agentFirstNameError ||
+      providerNameError ||
       contactNumberError ||
       emailError ||
       streetError ||
@@ -555,10 +559,8 @@ export default class UpdateProvByName extends Component {
       setTimeout(() => {
         this.setState({
           firstName: "",
-          agentFirstName: "",
-          agentLastName: "",
-          matchingAgents: [],
-          selectedAgent: null,
+          matchingProviders: [],
+          selectedProvider: null,
           editableDetails: null,
           successVisible: false,
           updateSuccess: "",
@@ -573,13 +575,13 @@ export default class UpdateProvByName extends Component {
         });
       }, 3000);
     } catch (error) {
-      console.error("Error updating agent:", error);
+      console.error("Error updating Provider:", error);
 
       // Show error message in case of an update failure
       this.setState({
         errorCardVisible: true,
-        errorMessage: "An error occurred while updating agent details.",
-        showForm: false, // Hide form after error
+        errorMessage: "An error occurred while updating provider details.",
+        showForm: false, 
       });
 
       // Reset state after 3 seconds
@@ -588,10 +590,8 @@ export default class UpdateProvByName extends Component {
           errorCardVisible: false,
           errorMessage: "",
           firstName: "",
-          agentFirstName: "",
-          agentLastName: "",
-          matchingAgents: [],
-          selectedAgent: null,
+          matchingProviders: [],
+          selectedProvider: null,
           editableDetails: null,
           stateId: "",
           cityId: "",
@@ -607,8 +607,8 @@ export default class UpdateProvByName extends Component {
   render() {
     const {
       firstName,
-      matchingAgents,
-      selectedAgent,
+      matchingProviders,
+      selectedProvider,
       editableDetails,
       successVisible,
       updateSuccess,
@@ -616,8 +616,9 @@ export default class UpdateProvByName extends Component {
       cityId,
       stateIdError,
       cityIdError,
-      agentNotFoundVisible,
+      providerNotFoundVisible,
       enterProviderNameVisible,
+      validationError,
     } = this.state;
 
     return (
@@ -650,9 +651,14 @@ export default class UpdateProvByName extends Component {
             </div>
           )}
           <div className="form-group">
-            <label htmlFor="agentName" className="form-label">
+            <label htmlFor="providerName" className="form-label">
               Enter Provider Name:
             </label>
+            {validationError && (  // Display validation error card if exists
+                  <div className="alert alert-danger">
+                    <strong>{validationError}</strong>
+                  </div>
+                )}
             <input
               type="text"
               className="form-control"
@@ -674,19 +680,19 @@ export default class UpdateProvByName extends Component {
         </div>
 
         {/* Matching Providers Section */}
-        {matchingAgents.length > 0 && (
+        {matchingProviders.length > 0 && (
           <div className="card shadow p-4 mb-4">
             <h3 className="text-center mb-4">Matching Providers</h3>
             <ul className="list-group">
-              {matchingAgents.map((agent) => (
+              {matchingProviders.map((provider) => (
                 <li
                   className="list-group-item d-flex justify-content-between align-items-center"
-                  key={agent.agentId}
+                  key={provider.providerId}
                 >
-                  {agent.providerName}
+                  {provider.providerName}
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() => this.selectAgentForUpdate(agent)}
+                    onClick={() => this.selectProviderForUpdate(provider)}
                   >
                     Update
                   </button>
@@ -748,14 +754,14 @@ export default class UpdateProvByName extends Component {
           </div>
         )}
 
-        {agentNotFoundVisible && (
+        {providerNotFoundVisible && (
           <div className="alert alert-danger mt-3">
             No Agent found with the given name.
           </div>
         )}
 
         {/* Edit Provider Details Section */}
-        {this.state.showForm && selectedAgent && (
+        {this.state.showForm && selectedProvider && (
           <div className="card shadow p-4">
             <h3 className="text-center mb-4">Edit Provider Details</h3>
             <div className="form-group mb-3">
@@ -768,9 +774,9 @@ export default class UpdateProvByName extends Component {
                 value={editableDetails.providerName}
                 onChange={this.validateAgentFirstName}
               />
-              {this.state.agentFirstNameError && (
+              {this.state.providerNameError && (
                 <div className="text-danger">
-                  {this.state.agentFirstNameError}
+                  {this.state.providerNameError}
                 </div>
               )}
             </div>

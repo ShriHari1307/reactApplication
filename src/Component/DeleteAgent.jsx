@@ -7,6 +7,7 @@ export default class DeleteAgent extends Component {
     super(props);
     this.state = {
       agentName: '',
+      agentNameError: "",
       matchingAgents: [],
       successVisible: false,
       selectedAgent: null,
@@ -15,6 +16,7 @@ export default class DeleteAgent extends Component {
       updateSuccess: 'Agent deleted successfully!',
       loading: false,
       showModal: false,
+      validationError: "",
     };
   }
 
@@ -23,20 +25,53 @@ export default class DeleteAgent extends Component {
     this.setState({ agentName: e.target.value });
   };
 
+  validateAgentName = (e) => {
+    const value = e.target.value;
+    const regex = /^[A-Za-z ]+$/;
+    this.setState({
+      agentName: value,
+      agentNameError:
+        value && !regex.test(value)
+          ? "Agent name cannot contain numbers or special characters"
+          : ""
+    });
+  };
+
   // Fetch matching agents based on name using axios
   fetchAgentsByName = async () => {
-    const { agentName } = this.state;
+    const { agentName,agentNameError } = this.state;
+
+    if (agentNameError) {
+      this.setState({
+        enterAgentNameVisible: false, 
+        agentNotFoundVisible: false,
+        matchingAgents: [],
+        validationError: "Please fix the error before searching",
+      },
+      () => {
+        setTimeout(() => {
+          this.setState({ validationError: "" });
+        }, 2000);
+      });
+      return;
+    }
 
     if (!agentName.trim()) {
       this.setState({
         enterAgentNameVisible: true,
         agentNotFoundVisible: false,
         matchingAgents: [],
+      },
+      () => {
+        setTimeout(() => {
+          this.setState({ validationError: "" });
+        }, 2000);
       });
       return;
     }
+    
 
-    this.setState({ loading: true, enterAgentNameVisible: false });
+    this.setState({ loading: true, enterAgentNameVisible: false,validationError:"" });
 
     try {
       const response = await axios.get('http://localhost:8080/agents/search', {  
@@ -122,6 +157,7 @@ export default class DeleteAgent extends Component {
       enterAgentNameVisible,
       loading,
       showModal,
+      validationError,
     } = this.state;
 
     return (
@@ -134,14 +170,24 @@ export default class DeleteAgent extends Component {
             <label htmlFor="agentName" className="form-label">
               Enter Agent Name:
             </label>
+            {validationError && ( 
+                  <div className="alert alert-danger">
+                    <strong>{validationError}</strong>
+                  </div>
+                )}
             <input
               type="text"
               className="form-control"
               id="agentName"  
               value={agentName}
-              onChange={this.handleInputChange}
+              onChange={this.validateAgentName}
               placeholder="Enter agent name" 
             />
+            {this.state.agentNameError && (
+                        <div className="text-danger">
+                          {this.state.agentNameError}
+                        </div>
+                      )}
             <button
               className="btn btn-primary mt-3"
               onClick={this.fetchAgentsByName}  

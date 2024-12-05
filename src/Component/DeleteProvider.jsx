@@ -7,6 +7,7 @@ export default class DeleteProvider extends Component {
     super(props);
     this.state = {
       providerName: '',
+      providerNameError: "",
       matchingProviders: [],
       successVisible: false,
       selectedProviderId: null,
@@ -16,28 +17,60 @@ export default class DeleteProvider extends Component {
       updateSuccess: 'Provider deleted successfully!',
       loading: false,
       showModal: false,
+      validationError: "",
     };
   }
 
-  // Handle input change for provider name
   handleInputChange = (e) => {
     this.setState({ providerName: e.target.value });
   };
 
-  // Fetch matching providers by name
-  fetchProvidersByName = async () => {
-    const { providerName } = this.state;
+  validateProviderName = (e) => {
+    const value = e.target.value;
+    const regex = /^[A-Za-z ]+$/;
+    this.setState({
+      providerName: value,
+      providerNameError:
+        value && !regex.test(value)
+          ? "Provider name cannot contain numbers or special characters"
+          : ""
+    });
+  };
 
+  fetchProvidersByName = async () => {
+    const { providerName,providerNameError } = this.state;
+
+    if (providerNameError) {
+      this.setState({
+        enterProviderNameVisible: false, // Hide "Please enter provider name"
+        providerNotFoundVisible: false,
+        matchingProviders: [],
+        validationError: "Please fix the error before searching", // Show providerNameError message
+      },
+      () => {
+        setTimeout(() => {
+          this.setState({ validationError: "" });
+        }, 2000);
+      });
+      return;
+    }
+    
     if (!providerName.trim()) {
       this.setState({
         enterProviderNameVisible: true,
         providerNotFoundVisible: false,
         matchingProviders: [],
+      },
+      () => {
+        setTimeout(() => {
+          this.setState({ validationError: "" });
+        }, 2000);
       });
       return;
     }
+    
 
-    this.setState({ loading: true, enterProviderNameVisible: false });
+    this.setState({ loading: true, enterProviderNameVisible: false,validationError:""});
 
     try {
       const response = await axios.get('http://localhost:8080/provider/search', {
@@ -68,7 +101,6 @@ export default class DeleteProvider extends Component {
     }
   };
 
-  // Show confirmation modal
   handleDeleteConfirmation = (providerId, providerName) => {
     this.setState({
       showModal: true,
@@ -99,6 +131,7 @@ export default class DeleteProvider extends Component {
         selectedProviderId: null,
         selectedProviderName: '',
         loading: false,
+        
       });
 
       setTimeout(() => {
@@ -127,6 +160,7 @@ export default class DeleteProvider extends Component {
       loading,
       showModal,
       selectedProviderName,
+      validationError,
     } = this.state;
 
     return (
@@ -139,14 +173,24 @@ export default class DeleteProvider extends Component {
             <label htmlFor="providerName" className="form-label">
               Enter Provider Name:
             </label>
+            {validationError && (  // Display validation error card if exists
+                  <div className="alert alert-danger">
+                    <strong>{validationError}</strong>
+                  </div>
+                )}
             <input
               type="text"
               className="form-control"
               id="providerName"
               value={providerName}
-              onChange={this.handleInputChange}
+              onChange={this.validateProviderName}
               placeholder="Enter provider name"
             />
+            {this.state.providerNameError && (
+                        <div className="text-danger">
+                          {this.state.providerNameError}
+                        </div>
+                      )}
             <button
               className="btn btn-primary mt-3"
               onClick={this.fetchProvidersByName}

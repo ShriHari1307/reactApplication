@@ -109,7 +109,7 @@ class UpdateProvider extends Component {
   };
 
   updateProvider = async () => {
-    const { providerName, contactNumber, email, selectedProvider } = this.state;
+    const { providerName, contactNumber, email, selectedProvider, } = this.state;
 
     this.validateProviderName({ target: { value: providerName } });
     this.validateContactNumber({ target: { value: contactNumber } });
@@ -201,6 +201,7 @@ class UpdateProvider extends Component {
       showForm,
       noProviderFound,
       searchErrorCard,
+      
     } = this.state;
 
     return (

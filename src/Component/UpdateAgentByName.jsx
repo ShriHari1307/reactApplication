@@ -451,16 +451,35 @@ export default class UpdateAgentByName extends Component {
   };
 
   fetchAgentsByName = async () => {
-    const { agentName } = this.state;
+    const { agentName,inputError } = this.state;
 
     this.setState({
       matchingAgents: [],
     });
 
+    if (inputError) {
+      this.setState({
+        agentNotFoundVisible: false,
+        matchingAgents: [],
+        validationError: "Please fix the error before searching",
+      },
+      () => {
+        setTimeout(() => {
+          this.setState({ validationError: "" });
+        }, 2000);
+      });
+      return;
+    }
+
     if (!agentName.trim()) {
       this.setState({
         agentNotFoundVisible: false,
         enterProviderNameVisible: true,
+      },
+      () => {
+        setTimeout(() => {
+          this.setState({ validationError: "" });
+        }, 2000);
       });
       return;
     }
@@ -654,6 +673,7 @@ export default class UpdateAgentByName extends Component {
       selectedProviders,
       agentNotFoundVisible,
       enterProviderNameVisible,
+      validationError,
     } = this.state;
 
     return (
@@ -689,6 +709,11 @@ export default class UpdateAgentByName extends Component {
             <label htmlFor="agentName" className="form-label">
               Enter Agent Name:
             </label>
+            {validationError && (  // Display validation error card if exists
+                  <div className="alert alert-danger">
+                    <strong>{validationError}</strong>
+                  </div>
+                )}
             <input
               type="text"
               className="form-control"

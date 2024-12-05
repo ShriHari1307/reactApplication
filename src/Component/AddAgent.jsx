@@ -39,6 +39,7 @@ export default class AddAgent extends Component {
     };
   }
 
+  // For city mapping
   cityMapping = {
     1: [
       { id: "1", name: "Chennai" },
@@ -87,6 +88,7 @@ export default class AddAgent extends Component {
       });
   }
 
+  //include the provider when selected
   handleCheckboxChange = (providerId) => {
     const { selectedProviders } = this.state;
     const isSelected = selectedProviders.includes(providerId);
@@ -98,6 +100,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  //for change state 
   handleStateChange = (e) => {
     const stateId = e.target.value;
     this.setState({
@@ -107,6 +110,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  //agent name validation
   validateAgentFirstName = (e) => {
     const value = e.target.value;
     const regex = /^[A-Za-z ]+$/;
@@ -119,6 +123,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  //agent name validation
   validateAgentLastName = (e) => {
     const value = e.target.value;
     const regex = /^[A-Za-z ]+$/;
@@ -129,14 +134,6 @@ export default class AddAgent extends Component {
           ? "Agent name cannot contain numbers or special characters"
           : "",
     });
-  };
-
-  handleSelectChange = (event) => {
-    const selectedOptions = Array.from(
-      event.target.selectedOptions,
-      (option) => option.value
-    );
-    this.setState({ selectedProviders: selectedOptions });
   };
 
   validateAgentId = (e) => {
@@ -151,6 +148,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  // street validation
   validateStreet = (e) => {
     const value = e.target.value;
     this.setState({
@@ -159,6 +157,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  //city validation
   validateCityId = (e) => {
     const value = e.target.value;
     this.setState({
@@ -167,6 +166,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  //agent status validation
   validateAgentStatus = (e) => {
     const value = e.target.value;
     this.setState({
@@ -175,6 +175,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  //state validation
   validateStateId = (e) => {
     const value = e.target.value;
     this.setState({
@@ -183,11 +184,7 @@ export default class AddAgent extends Component {
     });
   };
 
-  handleChange = (event) => {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
-  };
-
+  //contact validation
   validateContactNumber = (e) => {
     const value = e.target.value;
     const startsWithValidDigit = /^[986]/.test(value);
@@ -211,6 +208,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  //license number validation
   validateLicenseNumber = (e) => {
     const value = e.target.value;
     const regex = /^LIC\d{3,10}$/;
@@ -223,6 +221,8 @@ export default class AddAgent extends Component {
     });
   };
 
+
+  //email validation
   validateEmail = (e) => {
     const value = e.target.value;
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -232,6 +232,7 @@ export default class AddAgent extends Component {
     });
   };
 
+  //DOJ validation
   validateDateOfJoining = (e) => {
     const dateOfJoining = e.target.value;
     const currentDate = new Date().toISOString().split("T")[0];
@@ -249,6 +250,7 @@ export default class AddAgent extends Component {
     }
   };
 
+  // on submit
   handleSubmit = (event) => {
     event.preventDefault();
 
@@ -277,6 +279,7 @@ export default class AddAgent extends Component {
       selectedProviders,
     } = this.state;
 
+    //check for errors
     if (
       agentIdError ||
       agentNameError ||
@@ -301,6 +304,7 @@ export default class AddAgent extends Component {
       return;
     }
 
+    // make up the data for updating
     const payload = {
       agentId,
       firstName,

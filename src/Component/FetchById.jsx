@@ -8,7 +8,7 @@ export default class FetchProviderByName extends Component {
     this.state = {
       providerName: "",
       providerNameError: "",
-      validationError: "",  // New state for validation error
+      validationError: "",  
       matchingProviders: [],
       selectedProvider: null,
       providerNotFoundVisible: false,
@@ -73,8 +73,6 @@ export default class FetchProviderByName extends Component {
   validateProviderName = (e) => {
     const value = e.target.value;
     const regex = /^[A-Za-z ]+$/;
-  
-    // Update the state for providerName
     this.setState({
       providerName: value,
       providerNameError:
@@ -165,7 +163,7 @@ export default class FetchProviderByName extends Component {
       enterProviderNameVisible: true,
       loading: false,
       error: null,
-      validationError: "",  // Reset the validation error when resetting
+      validationError: "", 
     });
   };
 
@@ -178,7 +176,7 @@ export default class FetchProviderByName extends Component {
       enterProviderNameVisible,
       loading,
       error,
-      validationError,  // Get validation error state
+      validationError, 
     } = this.state;
 
     return (
