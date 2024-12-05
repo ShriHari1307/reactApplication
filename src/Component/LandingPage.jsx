@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { NavLink } from "react-router-dom";
+import emailjs from "@emailjs/browser";
 
 export default class LandingPage extends Component {
   constructor(props) {
@@ -13,10 +14,31 @@ export default class LandingPage extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    this.setState({
-      message: "Your message has been sent successfully!",
-      showMessage: true,
-    });
+
+    emailjs
+      .sendForm(
+        "service_gninq5q",
+        "template_nybpw7h",
+        e.target,
+        "GWQFdfsMr_Tjdvjkn"
+      )
+      .then(
+        (result) => {
+          console.log(result.text);
+          this.setState({
+            message: "Your message has been sent successfully!",
+            showMessage: true,
+          });
+        },
+        (error) => {
+          console.error(error.text);
+          this.setState({
+            message: `Error: ${JSON.stringify(error)}`,
+            showMessage: true,
+          });
+        }
+      );
+
     e.target.reset();
     setTimeout(() => {
       this.setState({ showMessage: false });
@@ -40,6 +62,7 @@ export default class LandingPage extends Component {
             {this.state.message}
           </div>
         )}
+
         <style>
           {`
             @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
@@ -226,6 +249,7 @@ export default class LandingPage extends Component {
                     type="text"
                     className="form-control"
                     placeholder="Your Name"
+                    name="from_name" // Ensure this matches the template variable
                     required
                   />
                 </div>
@@ -242,6 +266,7 @@ export default class LandingPage extends Component {
                 className="form-control mb-3"
                 rows="4"
                 placeholder="Your Message"
+                name="message"
                 required
               ></textarea>
               <button type="submit" className="btn btn-success">

@@ -149,7 +149,7 @@ export default class UpdateProvByName extends Component {
     });
   };
 
-  validateAgentFirstName = (e) => {
+  validateProviderName = (e) => {
     const value = e?.target?.value;
     if (!value) return;
 
@@ -294,17 +294,6 @@ export default class UpdateProvByName extends Component {
     );
   };
 
-  validateProviderName = (e) => {
-    const value = e.target.value;
-    const regex = /^[A-Za-z ]+$/;
-    this.setState({
-      providerName: value,
-      providerNameError:
-        value && !regex.test(value)
-          ? "Provider name cannot contain numbers or special characters"
-          : ""
-    });
-  };
 
   validateStateId = (e) => {
     const value = e.target.value;
@@ -410,7 +399,7 @@ export default class UpdateProvByName extends Component {
     });
   };
 
-  fetchAgentsByName = async () => {
+  fetchProvidersByName = async () => {
     const { providerName,inputError } = this.state;
 
     if (inputError) {
@@ -485,7 +474,7 @@ export default class UpdateProvByName extends Component {
   handleValidationAndUpdate = async () => {
     const { editableDetails } = this.state;
     let errorStatus = false;
-    this.validateAgentFirstName({
+    this.validateProviderName({
       target: { value: editableDetails.firstName },
     });
     this.validateContactNumber({
@@ -539,10 +528,10 @@ export default class UpdateProvByName extends Component {
     }
 
     this.setState({ errorStatus: false }, async () => {
-      await this.updateAgentDetails(editableDetails);
+      await this.updateProviderDetails(editableDetails);
     });
   };
-  updateAgentDetails = async (editableDetails) => {
+  updateProviderDetails = async (editableDetails) => {
     try {
       console.log("Request Payload:", editableDetails);
       await axios.put(
@@ -552,7 +541,7 @@ export default class UpdateProvByName extends Component {
 
       this.setState({
         successVisible: true,
-        updateSuccess: "Agent updated successfully!",
+        updateSuccess: "Provider updated successfully!",
         showForm: false,
       });
 
@@ -672,7 +661,7 @@ export default class UpdateProvByName extends Component {
             )}
             <button
               className="btn btn-primary mt-3"
-              onClick={this.fetchAgentsByName}
+              onClick={this.fetchProvidersByName}
             >
               Search
             </button>
@@ -750,13 +739,13 @@ export default class UpdateProvByName extends Component {
         )}
         {enterProviderNameVisible && (
           <div className="alert alert-warning mt-3">
-            Please enter a Agent name.
+            Please enter a Provider name.
           </div>
         )}
 
         {providerNotFoundVisible && (
           <div className="alert alert-danger mt-3">
-            No Agent found with the given name.
+            No Provider found with the given name.
           </div>
         )}
 
@@ -772,7 +761,7 @@ export default class UpdateProvByName extends Component {
                 id="editName"
                 name="providerName"
                 value={editableDetails.providerName}
-                onChange={this.validateAgentFirstName}
+                onChange={this.validateProviderName}
               />
               {this.state.providerNameError && (
                 <div className="text-danger">
