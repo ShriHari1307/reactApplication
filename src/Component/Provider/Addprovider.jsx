@@ -32,6 +32,7 @@ export default class AddProvider extends Component {
     };
   }
 
+  //city mapping
   cityMapping = {
     1: [
       { id: "1", name: "Chennai" },
@@ -80,6 +81,7 @@ export default class AddProvider extends Component {
       });
   }
 
+  // for state change
   handleStateChange = (e) => {
     const stateId = e.target.value;
     this.setState({
@@ -89,6 +91,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  //contact number validation
   validateContactNumber = (e) => {
     const value = e.target.value;
     const startsWithValidDigit = /^[986]/.test(value);
@@ -112,6 +115,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  // emaIL validation
   validateEmail = (e) => {
     const value = e.target.value;
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -121,6 +125,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  //provider type validation
   validateProviderType = (e) => {
     const value = e.target.value;
     this.setState({
@@ -129,6 +134,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  //street validation
   validateStreet = (e) => {
     const value = e.target.value;
     this.setState({
@@ -137,6 +143,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  //city validation
   validateCityId = (e) => {
     const value = e.target.value;
     this.setState({
@@ -145,6 +152,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  //state validation
   validateStateId = (e) => {
     const value = e.target.value;
     this.setState({
@@ -153,6 +161,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  //validate agent ids
   validateAgentIds = (e) => {
     const value = e.target.value;
     const agentIdsArray = value.split(",").map((id) => id.trim());
@@ -163,6 +172,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  //validation of provider name
   validateProviderName = (e) => {
     const value = e.target.value;
     const regex = /^[A-Za-z ]+$/;
@@ -175,6 +185,7 @@ export default class AddProvider extends Component {
     });
   };
 
+  //provider id validation
   validateProviderId = (e) => {
     const value = e.target.value;
     const regex = /^[Pp][0-9]{3,6}$/;
@@ -187,11 +198,7 @@ export default class AddProvider extends Component {
     });
   };
 
-  handleChange = (event) => {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
-  };
-
+  //on submit
   handleSubmit = (event) => {
     event.preventDefault();
 
@@ -236,6 +243,7 @@ export default class AddProvider extends Component {
       return;
     }
 
+    //make up the data
     const payload = {
       providerId,
       providerName,

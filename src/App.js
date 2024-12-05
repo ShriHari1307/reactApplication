@@ -10,21 +10,22 @@ import {
 } from "react-router-dom";
 import NaviBar from "./Component/Navibar";
 import Footer from "./Component/Footer";
-import Addprovider from "./Component/Addprovider";
-import FetchById from "./Component/FetchById";
-import FetchAll from "./Component/FetchAll";
+import Addprovider from "./Component/Provider/Addprovider";
+import FetchById from "./Component/Provider/FetchById";
+import FetchAll from "./Component/Provider/FetchAll";
 import HomePage from "./Component/HomePage";
-import DeleteProvider from "./Component/DeleteProvider";
+import DeleteProvider from "./Component/Provider/DeleteProvider";
 import AdComponent from "./Component/AdComponent";
 import PageNotFound from "./Component/PageNotFound";
-import AddAgent from "./Component/AddAgent";
-import FetchAllAgent from "./Component/FetchAllAgent";
-import FetchAgentById from "./Component/FetchAgentById";
+import AddAgent from "./Component/Agents/AddAgent";
+import FetchAllAgent from "./Component/Agents/FetchAllAgent";
+import FetchAgentById from "./Component/Agents/FetchAgentById";
 import LandingPage from "./Component/LandingPage";
 import LoginPage from "./Component/LoginPage";
-import DeleteAgent from "./Component/DeleteAgent";
+import DeleteAgent from "./Component/Agents/DeleteAgent";
 import CustomQueries from "./Component/CustomQueries";
-import UpdateProvByName from "./Component/UpdateProvByName";
+import UpdateProvByName from "./Component/Provider/UpdateProvByName";
+import UpdateAgentByName from "./Component/Agents/UpdateAgentByName";
 import {
   FaPlus,
   FaIdCard,
@@ -35,7 +36,6 @@ import {
   FaCogs,
 } from "react-icons/fa";
 // import UpdateProvByName from "./Component/UpdateProvByName";
-import UpdateAgentByName from "./Component/UpdateAgentByName";
 
 export default class App extends Component {
   constructor(props) {

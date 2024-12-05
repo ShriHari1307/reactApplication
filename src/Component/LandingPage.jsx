@@ -84,7 +84,12 @@ export default class LandingPage extends Component {
         {/* Header */}
         <header className="d-flex justify-content-between align-items-center p-3 bg-dark text-white flex-wrap">
           <div className="logo">
-            <img src="logo.jpg" alt="Logo" className="img-fluid" style={{ maxWidth: "120px" }} />
+            <img
+              src="logo.jpg"
+              alt="Logo"
+              className="img-fluid"
+              style={{ maxWidth: "120px" }}
+            />
           </div>
           <NavLink className="btn btn-success mt-2 mt-md-0" to="/login">
             Login
@@ -105,14 +110,13 @@ export default class LandingPage extends Component {
             performance with ease.
           </p>
           <img
-  src="landing-image.png"
-  alt="Insurance Platform"
-  className="img-fluid rounded shadow-lg"
-  style={{ maxWidth: "50%", transition: "transform 0.3s ease" }}
-  onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
-  onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
-/>
-
+            src="landing-image.png"
+            alt="Insurance Platform"
+            className="img-fluid rounded shadow-lg"
+            style={{ maxWidth: "50%", transition: "transform 0.3s ease" }}
+            onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
+            onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+          />
         </section>
 
         {/* Key Features */}

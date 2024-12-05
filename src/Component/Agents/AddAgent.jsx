@@ -651,7 +651,7 @@ export default class AddAgent extends Component {
                               type="checkbox"
                               id={`provider-${provider.providerId}`}
                               value={provider.providerId}
-                              checked={this.state.selectedProviders.includes(
+                              checked={selectedProviders.includes(
                                 provider.providerId
                               )}
                               onChange={() =>
@@ -671,12 +671,6 @@ export default class AddAgent extends Component {
                   ) : (
                     <p className="text-muted">Loading providers...</p>
                   )}
-                  <div className="mt-3">
-                    <h4>Selected Providers:</h4>
-                    <p className="text-info">
-                      {selectedProviders.join(", ") || "None selected"}
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
