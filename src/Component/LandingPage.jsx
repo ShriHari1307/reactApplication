@@ -46,9 +46,10 @@ export default class LandingPage extends Component {
   };
 
   render() {
+    const {showMessage,message} = this.state;
     return (
       <div style={{ fontFamily: "Poppins, sans-serif" }}>
-        {this.state.showMessage && (
+        {showMessage && (
           <div
             className="alert alert-success fixed-top text-center"
             style={{
@@ -59,7 +60,7 @@ export default class LandingPage extends Component {
               transform: "translateX(-50%)",
             }}
           >
-            {this.state.message}
+            {message}
           </div>
         )}
 

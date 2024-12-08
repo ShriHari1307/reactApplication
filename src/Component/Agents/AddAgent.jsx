@@ -72,8 +72,19 @@ export default class AddAgent extends Component {
   };
 
   componentDidMount() {
-    fetch("http://localhost:8080/provider")
-      .then((response) => response.json())
+    const fetchProviders = new Promise((resolve, reject) => {
+      fetch("http://localhost:8080/provider")
+        .then((response) => {
+          if (!response.ok) {
+            reject(new Error("Failed to fetch Providers"));
+          }
+          return response.json();
+        })
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
+    });
+  
+    fetchProviders
       .then((data) => {
         this.setState({
           providers: data.data,
@@ -82,11 +93,12 @@ export default class AddAgent extends Component {
       })
       .catch((error) => {
         this.setState({
-          error: "failed to fetch Providers",
+          error: error.message || "An unexpected error occurred",
           loading: false,
         });
       });
   }
+  
 
   //include the provider when selected
   handleCheckboxChange = (providerId) => {
@@ -253,7 +265,7 @@ export default class AddAgent extends Component {
   // on submit
   handleSubmit = (event) => {
     event.preventDefault();
-
+  
     const {
       agentId,
       firstName,
@@ -278,8 +290,8 @@ export default class AddAgent extends Component {
       AgentStatusError,
       selectedProviders,
     } = this.state;
-
-    //check for errors
+  
+    // Check for validation errors
     if (
       agentIdError ||
       agentNameError ||
@@ -294,17 +306,15 @@ export default class AddAgent extends Component {
     ) {
       this.setState({
         validationCard: true,
-        validationError:
-          "Please fix all the validation errors before submitting.",
+        validationError: "Please fix all the validation errors before submitting.",
       });
       setTimeout(() => {
         this.setState({ validationCard: false });
       }, 3000);
-
+  
       return;
     }
 
-    // make up the data for updating
     const payload = {
       agentId,
       firstName,
@@ -319,24 +329,28 @@ export default class AddAgent extends Component {
       email,
       status: status,
     };
-
+  
     console.log("Payload to be sent:", payload);
-
-    fetch("http://localhost:8080/agents/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((errorData) => {
-            throw new Error(errorData.response || "Failed to add provider");
-          });
-        }
-        return response.json();
+    const addAgent = new Promise((resolve, reject) => {
+      fetch("http://localhost:8080/agents/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       })
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((errorData) => {
+              reject(new Error(errorData.response || "Failed to add provider"));
+            });
+          }
+          return response.json();
+        })
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
+    });
+    addAgent
       .then((data) => {
         console.log("Response data:", data);
         this.setState({
@@ -370,7 +384,7 @@ export default class AddAgent extends Component {
         }, 3000);
       });
   };
-
+  
   render() {
     const { providers, selectedProviders } = this.state;
     return (

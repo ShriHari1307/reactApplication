@@ -65,21 +65,35 @@ export default class AddProvider extends Component {
   };
 
   componentDidMount() {
-    fetch("http://localhost:8080/agents")
-      .then((response) => response.json())
+    new Promise((resolve, reject) => {
+      fetch("http://localhost:8080/agents")
+        .then((response) => {
+          if (!response.ok) {
+            reject(new Error("Failed to fetch agents"));
+          }
+          return response.json();  
+        })
+        .then((data) => {
+          resolve(data);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    })
       .then((data) => {
         this.setState({
-          agents: data.data,
+          agents: data.data, 
           loading: false,
         });
       })
       .catch((error) => {
         this.setState({
-          error: "failed to fetch agents",
+          error: error.message || "Failed to fetch agents",
           loading: false,
         });
       });
   }
+  
 
   // for state change
   handleStateChange = (e) => {
@@ -201,7 +215,7 @@ export default class AddProvider extends Component {
   //on submit
   handleSubmit = (event) => {
     event.preventDefault();
-
+  
     const {
       providerId,
       providerName,
@@ -220,7 +234,7 @@ export default class AddProvider extends Component {
       stateIdError,
       agentIdsError,
     } = this.state;
-
+  
     if (
       providerNameError ||
       contactNumberError ||
@@ -233,17 +247,16 @@ export default class AddProvider extends Component {
     ) {
       this.setState({
         validationCard: true,
-        validationError:
-          "Please fix all the validation errors before submitting.",
+        validationError: "Please fix all the validation errors before submitting.",
       });
       setTimeout(() => {
         this.setState({ validationCard: false });
       }, 3000);
-
+  
       return;
     }
-
-    //make up the data
+  
+    // Make up the data
     const payload = {
       providerId,
       providerName,
@@ -254,24 +267,29 @@ export default class AddProvider extends Component {
       cityId,
       stateId,
     };
-
+  
     console.log("Payload data:", payload);
-
-    fetch("http://localhost:8080/provider/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((errorData) => {
-            throw new Error(errorData.response || "Failed to add provider");
-          });
-        }
-        return response.json();
+    const createProvider = new Promise((resolve, reject) => {
+      fetch("http://localhost:8080/provider/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       })
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((errorData) => {
+              reject(new Error(errorData.response || "Failed to add provider"));
+            });
+          }
+          return response.json();
+        })
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
+    });
+  
+    createProvider
       .then((data) => {
         console.log("Response data", data);
         this.setState({
@@ -301,7 +319,7 @@ export default class AddProvider extends Component {
         }, 3000);
       });
   };
-
+  
   render() {
     return (
       <div className="container mt-5">
