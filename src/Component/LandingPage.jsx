@@ -148,7 +148,7 @@ export default class LandingPage extends Component {
           <div className="container">
             <div className="row">
               <div className="col-md-4 col-sm-6 mb-3">
-                <div className="p-4 bg-light rounded shadow-sm">
+                <div className="d-flex flex-column justify-content-between bg-light p-4 rounded shadow-sm h-100">
                   <img
                     src="agent-reg.png"
                     alt="Feature 1"
@@ -163,7 +163,7 @@ export default class LandingPage extends Component {
               </div>
 
               <div className="col-md-4 col-sm-6 mb-3">
-                <div className="p-4 bg-light rounded shadow-sm">
+                <div className="d-flex flex-column justify-content-between bg-light p-4 rounded shadow-sm h-100">
                   <img
                     src="provider-assign.png"
                     alt="Feature 2"
@@ -178,7 +178,7 @@ export default class LandingPage extends Component {
               </div>
 
               <div className="col-md-4 col-sm-6 mb-3">
-                <div className="p-4 bg-light rounded shadow-sm">
+                <div className="d-flex flex-column justify-content-between bg-light p-4 rounded shadow-sm h-100">
                   <img
                     src="agent-mainte.png"
                     alt="Feature 3"
@@ -240,39 +240,69 @@ export default class LandingPage extends Component {
 
         {/* Contact Section */}
         <section className="text-center p-5 bg-light">
-          <h2 className="text-center mb-4 text-primary">Contact Us</h2>
+          <h2 className="text-center mb-4 text-primary display-5">
+            Contact Us
+          </h2>
+          <p className="text-muted mb-5 mx-auto" style={{ maxWidth: "600px" }}>
+            We’d love to hear from you! Fill out the form below, and we’ll get
+            back to you as soon as possible.
+          </p>
           <div className="container">
-            <form onSubmit={this.handleSubmit}>
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Your Name"
-                    name="from_name" // Ensure this matches the template variable
-                    required
-                  />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="Your Email"
-                    required
-                  />
-                </div>
+            <div
+              className="card shadow-lg mx-auto"
+              style={{ maxWidth: "700px" }}
+            >
+              <div className="card-body p-4 p-md-5">
+                <form onSubmit={this.handleSubmit}>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Your Name"
+                          name="from_name"
+                          required
+                          id="floatingName"
+                        />
+                        <label htmlFor="floatingName">Your Name</label>
+                      </div>
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="email"
+                          className="form-control"
+                          placeholder="Your Email"
+                          name="from_email"
+                          required
+                          id="floatingEmail"
+                        />
+                        <label htmlFor="floatingEmail">Your Email</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="form-floating mb-4">
+                    <textarea
+                      className="form-control"
+                      rows="4"
+                      placeholder="Your Message"
+                      name="message"
+                      required
+                      id="floatingMessage"
+                      style={{ height: "120px" }}
+                    ></textarea>
+                    <label htmlFor="floatingMessage">Your Message</label>
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn btn-success btn-lg w-100 shadow-sm"
+                  >
+                    Send Message
+                  </button>
+                </form>
               </div>
-              <textarea
-                className="form-control mb-3"
-                rows="4"
-                placeholder="Your Message"
-                name="message"
-                required
-              ></textarea>
-              <button type="submit" className="btn btn-success">
-                Send Message
-              </button>
-            </form>
+            </div>
           </div>
         </section>
       </div>

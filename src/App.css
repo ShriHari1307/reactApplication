@@ -74,19 +74,6 @@
   }
 
 
-  .hamburger-icon {
-  position: relative;
-  top: 20px; /* Adjust top margin based on where you want it placed */
-  left: 10px;
-  z-index: 1000;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 30px; /* Adjust size if necessary */
-  height: 30px; /* Adjust size if necessary */
-}
-
 .navbar-toggler-icon {
   width: 25px;
   height: 3px;

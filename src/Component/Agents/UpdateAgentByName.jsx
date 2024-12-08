@@ -670,7 +670,6 @@ export default class UpdateAgentByName extends Component {
       stateIdError,
       cityIdError,
       providers,
-      selectedProviders,
       agentNotFoundVisible,
       enterProviderNameVisible,
       validationError,
@@ -1037,12 +1036,6 @@ export default class UpdateAgentByName extends Component {
                   ) : (
                     <p className="text-muted">Loading providers...</p>
                   )}
-                  <div className="mt-3">
-                    <h4>Selected Providers:</h4>
-                    <p className="text-info">
-                      {selectedProviders.join(", ") || "None selected"}
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>

@@ -2,6 +2,54 @@ import React, { Component } from "react";
 import axios from "axios";
 
 export default class CustomQueries extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+    this.stateMapping = {
+      1: {
+        name: "Tamil Nadu",
+        cities: {
+          1: "Chennai",
+          2: "Coimbatore",
+          3: "Madurai",
+          4: "Salem",
+          5: "Trichy",
+        },
+      },
+      2: {
+        name: "West Bengal",
+        cities: {
+          6: "Kolkata",
+          7: "Durgapur",
+          8: "Siliguri",
+          9: "Asansol",
+          10: "Howrah",
+        },
+      },
+      3: {
+        name: "Karnataka",
+        cities: {
+          11: "Bangalore",
+          12: "Mysore",
+          13: "Hubli",
+          14: "Mangalore",
+          15: "Bellary",
+        },
+      },
+      4: {
+        name: "Maharashtra",
+        cities: {
+          16: "Mumbai",
+          17: "Pune",
+          18: "Nagpur",
+          19: "Nashik",
+          20: "Aurangabad",
+        },
+      },
+    };
+  }
+
   state = {
     queryResults: null,
     currentQuery: "",
@@ -11,7 +59,7 @@ export default class CustomQueries extends Component {
 
   fetchQueryResults(endpoint, queryName) {
     this.setState({ loading: true, error: null });
-  
+
     axios
       .get(`http://localhost:8080/provider/${endpoint}`)
       .then((response) => {
@@ -25,7 +73,71 @@ export default class CustomQueries extends Component {
         this.setState({ error: error.message, loading: false });
       });
   }
-  
+
+  getStateName = (stateId) => {
+    return this.stateMapping[stateId]?.name || "Unknown State";
+  };
+
+  getCityName = (stateId, cityId) => {
+    const state = this.stateMapping[stateId];
+    if (!state) return "Unknown City";
+    return state.cities[cityId] || "Unknown City";
+  };
+
+  componentDidMount() {
+    this.fetchProvidersAndAgents();
+  }
+
+  fetchProvidersAndAgents = async () => {
+    try {
+      // Fetch providers
+      const providersResponse = await axios.get(
+        "http://localhost:8080/provider",
+        {
+          headers: { "X-Custom-Header": "validHeaderValue" },
+        }
+      );
+
+      // Fetch all agents
+      const agentsResponse = await axios.get("http://localhost:8080/agents", {
+        headers: { "X-Custom-Header": "validHeaderValue" },
+      });
+
+      // Create a map of agent IDs to agent details
+      const agentsMap = agentsResponse.data.data.reduce((acc, agent) => {
+        acc[agent.agentId] = agent;
+        return acc;
+      }, {});
+
+      this.setState({
+        providers: providersResponse.data.data,
+        agentsMap: agentsMap,
+        loading: false,
+      });
+    } catch (error) {
+      this.setState({
+        error: error.message,
+        loading: false,
+      });
+    }
+  };
+
+  renderAgents = (agentIds) => {
+    const { agentsMap } = this.state;
+    return agentIds.map((agentId, index) => {
+      const agent = agentsMap[agentId];
+      if (agent) {
+        const isLastAgent = index === agentIds.length - 1;
+        return (
+          <span key={index}>
+            {agent.firstName} {agent.lastName}
+            {!isLastAgent && ", "}
+          </span>
+        );
+      }
+      return null;
+    });
+  };
 
   render() {
     const { queryResults, currentQuery, error, loading } = this.state;
@@ -47,36 +159,30 @@ export default class CustomQueries extends Component {
     return (
       <div style={{ padding: "20px" }}>
         <h1>Custom Queries</h1>
-        <div style={{ marginBottom: "20px" }}>
-          {queryList.map((query, index) => (
-            <button
-              key={index}
-              onClick={() => this.fetchQueryResults(query.endpoint, query.name)}
-              style={{
-                margin: "5px",
-                padding: "10px 20px",
-                backgroundColor: "#007BFF",
-                color: "#fff",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              {query.name}
-            </button>
-          ))}
-        </div>
+        <div className="d-flex flex-wrap justify-content-center mb-4">
+  {queryList.map((query, index) => (
+    <button
+      key={index}
+      onClick={() => this.fetchQueryResults(query.endpoint, query.name)}
+      className="btn btn-primary btn-lg m-2 px-4 py-2 shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-300"
+    >
+      {query.name}
+    </button>
+  ))}
+</div>
+
         <div>
           {loading && <p>Loading...</p>}
           {error && <p style={{ color: "red" }}>Error: {error}</p>}
           {queryResults && currentQuery === "Selected Columns" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This table is for Projection Interface</p>
+              <p>
+                <strong>Purpose:</strong> This table is for Projection Interface
+              </p>
               <table className="table table-bordered table-striped table-hover mt-4">
                 <thead style={{ backgroundColor: "#007BFF", color: "#fff" }}>
                   <tr>
-                    <th>Provider ID</th>
                     <th>Provider Name</th>
                     <th>Email</th>
                   </tr>
@@ -86,7 +192,6 @@ export default class CustomQueries extends Component {
                     Array.isArray(queryResults.data) &&
                     queryResults.data.map((item, index) => (
                       <tr key={index}>
-                        <td>{item.providerId}</td>
                         <td>{item.providerName}</td>
                         <td>{item.email}</td>
                       </tr>
@@ -98,7 +203,10 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Count Providers" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This is for counting the total number of providers</p>
+              <p>
+                <strong>Purpose:</strong> This is for counting the total number
+                of providers
+              </p>
               <div
                 style={{
                   backgroundColor: "#f0f0f0",
@@ -115,11 +223,13 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Minimum Agents" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose: </strong>This table is to display the providers with minimum agents</p>
+              <p>
+                <strong>Purpose: </strong>This table is to display the providers
+                with minimum agents
+              </p>
               <table className="table table-bordered table-striped table-hover mt-4">
                 <thead className="thead-dark">
                   <tr>
-                    <th>Provider ID</th>
                     <th>Provider Name</th>
                     <th>Contact Number</th>
                     <th>Email</th>
@@ -131,7 +241,6 @@ export default class CustomQueries extends Component {
                   {queryResults.data && queryResults.data.length > 0 ? (
                     queryResults.data.map((provider, index) => (
                       <tr key={index}>
-                        <td>{provider.providerId}</td>
                         <td>{provider.providerName}</td>
                         <td>{provider.contactNumber}</td>
                         <td>{provider.email}</td>
@@ -153,7 +262,10 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Providers by State" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This is for displaying the total number of providers for each state</p>
+              <p>
+                <strong>Purpose:</strong> This is for displaying the total
+                number of providers for each state
+              </p>
               <div
                 style={{
                   display: "grid",
@@ -184,7 +296,10 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Ordered Names & Emails" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This is for ordering the names in Ascending order</p>
+              <p>
+                <strong>Purpose:</strong> This is for ordering the names in
+                Ascending order
+              </p>
               <div
                 className="p-4 mb-4"
                 style={{
@@ -208,7 +323,9 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Inner Join Providers" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This table is for Inner Join</p>
+              <p>
+                <strong>Purpose:</strong> This table is for Inner Join
+              </p>
               <table
                 className="table table-bordered table-striped table-hover mt-4"
                 style={{
@@ -221,7 +338,6 @@ export default class CustomQueries extends Component {
                   style={{ backgroundColor: "#007BFF" }}
                 >
                   <tr>
-                    <th>Provider ID</th>
                     <th>Provider Name</th>
                     <th>contact</th>
                     <th>Email</th>
@@ -236,18 +352,23 @@ export default class CustomQueries extends Component {
                   {queryResults.data && queryResults.data.length > 0 ? (
                     queryResults.data.map((provider, index) => (
                       <tr key={index}>
-                        <td>{provider.providerId}</td>
                         <td>{provider.providerName}</td>
                         <td>{provider.contactNumber}</td>
                         <td>{provider.email}</td>
                         <td>{provider.providerType}</td>
                         <td>{provider.street}</td>
-                        <td>{provider.cityId}</td>
-                        <td>{provider.stateId}</td>
                         <td>
-                          {provider.agentIds && provider.agentIds.length > 0
-                            ? provider.agentIds.join(", ")
-                            : "No Agents"}
+                          {this.getCityName(provider.stateId, provider.cityId)}
+                        </td>
+                        <td>{this.getStateName(provider.stateId)}</td>
+                        <td>
+                          {provider.agentIds.length > 0 ? (
+                            <div className="list-group mt-2">
+                              {this.renderAgents(provider.agentIds)}
+                            </div>
+                          ) : (
+                            <p className="text-muted">No agents assigned</p>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -265,7 +386,9 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Left Join Providers" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This table is for Left Join</p>
+              <p>
+                <strong>Purpose:</strong> This table is for Left Join
+              </p>
               <table
                 className="table table-bordered table-striped table-hover mt-4"
                 style={{
@@ -278,7 +401,6 @@ export default class CustomQueries extends Component {
                   style={{ backgroundColor: "#007BFF" }}
                 >
                   <tr>
-                    <th>Provider ID</th>
                     <th>Provider Name</th>
                     <th>contact</th>
                     <th>Email</th>
@@ -293,18 +415,23 @@ export default class CustomQueries extends Component {
                   {queryResults.data && queryResults.data.length > 0 ? (
                     queryResults.data.map((provider, index) => (
                       <tr key={index}>
-                        <td>{provider.providerId}</td>
                         <td>{provider.providerName}</td>
                         <td>{provider.contactNumber}</td>
                         <td>{provider.email}</td>
                         <td>{provider.providerType}</td>
                         <td>{provider.street}</td>
-                        <td>{provider.cityId}</td>
-                        <td>{provider.stateId}</td>
                         <td>
-                          {provider.agentIds && provider.agentIds.length > 0
-                            ? provider.agentIds.join(", ")
-                            : "No Agents"}
+                          {this.getCityName(provider.stateId, provider.cityId)}
+                        </td>
+                        <td>{this.getStateName(provider.stateId)}</td>
+                        <td>
+                          {provider.agentIds.length > 0 ? (
+                            <div className="list-group mt-2">
+                              {this.renderAgents(provider.agentIds)}
+                            </div>
+                          ) : (
+                            <p className="text-muted">No agents assigned</p>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -322,7 +449,9 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Right Join Providers" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This table is for Right Join</p>
+              <p>
+                <strong>Purpose:</strong> This table is for Right Join
+              </p>
               <table
                 className="table table-bordered table-striped table-hover mt-4"
                 style={{
@@ -335,7 +464,6 @@ export default class CustomQueries extends Component {
                   style={{ backgroundColor: "#007BFF" }}
                 >
                   <tr>
-                    <th>Provider ID</th>
                     <th>Provider Name</th>
                     <th>Contact</th>
                     <th>Email</th>
@@ -351,18 +479,29 @@ export default class CustomQueries extends Component {
                     queryResults.data.map((provider, index) =>
                       provider ? (
                         <tr key={index}>
-                          <td>{provider.providerId || "No Provider"}</td>
                           <td>{provider.providerName || "No Name"}</td>
                           <td>{provider.contactNumber || "No Contact"}</td>
                           <td>{provider.email || "No Email"}</td>
                           <td>{provider.providerType || "No Type"}</td>
                           <td>{provider.street || "No Street"}</td>
-                          <td>{provider.cityId || "No City ID"}</td>
-                          <td>{provider.stateId || "No State ID"}</td>
                           <td>
-                            {provider.agentIds && provider.agentIds.length > 0
-                              ? provider.agentIds.join(", ")
-                              : "No Agents"}
+                            {this.getCityName(
+                              provider.stateId,
+                              provider.cityId
+                            ) || "No City ID"}
+                          </td>
+                          <td>
+                            {this.getStateName(provider.stateId) ||
+                              "No State ID"}
+                          </td>
+                          <td>
+                            {provider.agentIds.length > 0 ? (
+                              <div className="list-group mt-2">
+                                {this.renderAgents(provider.agentIds)}
+                              </div>
+                            ) : (
+                              <p className="text-muted">No agents assigned</p>
+                            )}
                           </td>
                         </tr>
                       ) : null
@@ -381,11 +520,13 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Cross Join Providers" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This table is for Cross Join</p>
+              <p>
+                <strong>Purpose:</strong> This table is for Cross Join
+              </p>
               <div
                 style={{
                   maxHeight: "400px",
-                  overflowY: "auto", 
+                  overflowY: "auto",
                 }}
               >
                 <table
@@ -433,7 +574,10 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Named Query 1" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-                <p><strong>Purpose:</strong> This table is for displaying the providers based on the creation date </p>
+              <p>
+                <strong>Purpose:</strong> This table is for displaying the
+                providers based on the creation date{" "}
+              </p>
               <table
                 className="table table-bordered table-striped table-hover mt-4"
                 style={{
@@ -446,7 +590,6 @@ export default class CustomQueries extends Component {
                   style={{ backgroundColor: "#007BFF" }}
                 >
                   <tr>
-                    <th>Provider ID</th>
                     <th>Provider Name</th>
                     <th>contact</th>
                     <th>Email</th>
@@ -461,18 +604,23 @@ export default class CustomQueries extends Component {
                   {queryResults.data && queryResults.data.length > 0 ? (
                     queryResults.data.map((provider, index) => (
                       <tr key={index}>
-                        <td>{provider.providerId}</td>
                         <td>{provider.providerName}</td>
                         <td>{provider.contactNumber}</td>
                         <td>{provider.email}</td>
                         <td>{provider.providerType}</td>
                         <td>{provider.street}</td>
-                        <td>{provider.cityId}</td>
-                        <td>{provider.stateId}</td>
                         <td>
-                          {provider.agentIds && provider.agentIds.length > 0
-                            ? provider.agentIds.join(", ")
-                            : "No Agents"}
+                          {this.getCityName(provider.stateId, provider.cityId)}
+                        </td>
+                        <td>{this.getStateName(provider.stateId)}</td>
+                        <td>
+                          {provider.agentIds.length > 0 ? (
+                            <div className="list-group mt-2">
+                              {this.renderAgents(provider.agentIds)}
+                            </div>
+                          ) : (
+                            <p className="text-muted">No agents assigned</p>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -491,7 +639,10 @@ export default class CustomQueries extends Component {
           {queryResults && currentQuery === "Named Query 2" && (
             <div>
               <h2>Results for: {currentQuery}</h2>
-              <p><strong>Purpose:</strong> This table is for displaying only the providers who have agents</p>
+              <p>
+                <strong>Purpose:</strong> This table is for displaying only the
+                providers who have agents
+              </p>
               <table
                 className="table table-bordered table-striped table-hover mt-4"
                 style={{
@@ -504,7 +655,6 @@ export default class CustomQueries extends Component {
                   style={{ backgroundColor: "#007BFF" }}
                 >
                   <tr>
-                    <th>Provider ID</th>
                     <th>Provider Name</th>
                     <th>contact</th>
                     <th>Email</th>
@@ -519,24 +669,29 @@ export default class CustomQueries extends Component {
                   {queryResults.data && queryResults.data.length > 0 ? (
                     queryResults.data.map((provider, index) => (
                       <tr key={index}>
-                        <td>{provider.providerId}</td>
                         <td>{provider.providerName}</td>
                         <td>{provider.contactNumber}</td>
                         <td>{provider.email}</td>
                         <td>{provider.providerType}</td>
                         <td>{provider.street}</td>
-                        <td>{provider.cityId}</td>
-                        <td>{provider.stateId}</td>
                         <td>
-                          {provider.agentIds && provider.agentIds.length > 0
-                            ? provider.agentIds.join(", ")
-                            : "No Agents"}
+                          {this.getCityName(provider.stateId, provider.cityId)}
+                        </td>
+                        <td>{this.getStateName(provider.stateId)}</td>
+                        <td>
+                          {provider.agentIds.length > 0 ? (
+                            <div className="list-group mt-2">
+                              {this.renderAgents(provider.agentIds)}
+                            </div>
+                          ) : (
+                            <p className="text-muted">No agents assigned</p>
+                          )}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" className="text-center">
+                      <td colSpan="8" className="text-center">
                         No data available
                       </td>
                     </tr>

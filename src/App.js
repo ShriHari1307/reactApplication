@@ -97,7 +97,7 @@ export default class App extends Component {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/addProvider"
@@ -110,32 +110,34 @@ export default class App extends Component {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/fetchById"
                         >
-                          <FaIdCard style={{ marginRight: "10px" }} /> Fetch Provider By
-                          Name
+                          <FaIdCard style={{ marginRight: "10px" }} /> Fetch
+                          Provider By Name
                         </NavLink>
                       </li>
+
                       <li className="nav-item mb-3">
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/fetchAll"
                         >
-                          <FaUsers style={{ marginRight: "10px" }} /> Fetch All Providers
+                          <FaUsers style={{ marginRight: "10px" }} /> Fetch All
+                          Providers
                         </NavLink>
                       </li>
                       <li className="nav-item mb-3">
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/deleteProvider"
@@ -148,7 +150,7 @@ export default class App extends Component {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/updateProvider"
@@ -161,7 +163,7 @@ export default class App extends Component {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/addAgent"
@@ -174,20 +176,20 @@ export default class App extends Component {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/fetchByAgentId"
                         >
-                          <FaIdCard style={{ marginRight: "10px" }} /> Fetch Agent By
-                           Name
+                          <FaIdCard style={{ marginRight: "10px" }} /> Fetch
+                          Agent By Name
                         </NavLink>
                       </li>
                       <li className="nav-item mb-3">
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/fetchAllAgent"
@@ -200,7 +202,7 @@ export default class App extends Component {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/deleteAgent"
@@ -213,7 +215,7 @@ export default class App extends Component {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/updateAgent"
@@ -226,7 +228,7 @@ export default class App extends Component {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? "nav-link text-white p-3 rounded-3 active-link"
+                              ? "nav-link text-white p-3 rounded-3 active-link bg-primary border-2 border-light shadow-lg"
                               : "nav-link text-white p-3 rounded-3"
                           }
                           to="/customQuery"
@@ -259,7 +261,10 @@ export default class App extends Component {
                         element={<FetchAgentById />}
                       />
                       <Route path="/addAgent" element={<AddAgent />} />
-                      <Route path="/updateAgent" element={<UpdateAgentByName />} />
+                      <Route
+                        path="/updateAgent"
+                        element={<UpdateAgentByName />}
+                      />
                       <Route
                         path="/deleteProvider"
                         element={<DeleteProvider />}
